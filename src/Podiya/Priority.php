@@ -5,7 +5,7 @@ namespace Podiya;
 /**
  * Podiya event priority
  *
- * Specifies a listeners handling priority.
+ * Specifies an event handler priority.
  *
  * @author		David Tkachuk
  * @package		Podiya
@@ -13,10 +13,12 @@ namespace Podiya;
  */
 class Priority {
 
-	const LOW = 0;
-	const NORMAL = 1;
-	const HIGH = 2;
-	const URGENT = 3;
+	const LOWEST	= 0;
+	const LOW		= 1;
+	const NORMAL	= 2;
+	const HIGH		= 3;
+	const HIGHEST	= 4;
+	const URGENT	= 5;
 
 }
 

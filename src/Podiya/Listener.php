@@ -12,10 +12,10 @@ namespace Podiya;
 interface Listener {
 
 	/**
-	 * Register the listener's events
+	 * Register the listener's event handlers
 	 *
 	 * When the listener class is initialized, this method
-	 * will be called to register the events
+	 * will be called to register the event handlers
 	 *
 	 * @access		public
 	 * @param		\Podiya\Podiya $podiya The main podiya class
