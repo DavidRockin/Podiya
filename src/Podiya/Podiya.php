@@ -39,7 +39,7 @@ class Podiya {
 	 * @return		\Podiya\Podiya Returns the class
 	 */
 	public function unregisterEvent($eventName) {
-		if ($this->eventRegistered($eventName) {
+		if ($this->eventRegistered($eventName)) {
 			foreach ($this->events[$eventName] as $key => $value) {
 				$this->events[$eventName][$key] = array_splice($this->events[$eventName][$key], 0, 1);
 			}
