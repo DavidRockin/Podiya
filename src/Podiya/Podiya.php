@@ -17,7 +17,7 @@ class Podiya {
 	 * @access		protected
 	 */
 	protected $events = array();
-	
+
 	/**
 	 * Registers an event handler for an event
 	 *
@@ -27,7 +27,7 @@ class Podiya {
 	 * @return		\Podiya\Podiya Returns the class
 	 */
 	public function registerEvent($eventName, callable $callback, $priority = \Podiya\Priority::NORMAL) {
-		$this->events[$eventName][] = $callback;
+		$this->events[$eventName][$priority][] = $callback;
 		return $this;
 	}
 
@@ -39,7 +39,10 @@ class Podiya {
 	 * @return		\Podiya\Podiya Returns the class
 	 */
 	public function unregisterEvent($eventName) {
-		$this->events[$eventName] = array_splice($this->events[$eventName], 0, 1);
+		foreach ($this->events[$eventName] as $key => $value) {
+			$this->events[$eventName][$key] = array_splice($this->events[$eventName][$key], 0, 1);
+		}
+
 		return $this;
 	}
 	
@@ -75,10 +78,15 @@ class Podiya {
 		$args = func_get_args();
 		array_shift($args);
 		$result = null;
-		
-		foreach ($this->events[$eventName] as $callback) {
-			$arguments = array_merge($args, array($result));
-			$result = call_user_func_array($callback, $arguments);
+
+		for ($i = 0; $i < 6; $i++) {
+			if (!isset($this->events[$eventName][$i])) continue;
+			$events = $this->events[$eventName][$i];
+
+			foreach ($events as $callback) {
+				$arguments = array_merge($args, array($result));
+				$result = call_user_func_array($callback, $arguments);
+			}
 		}
 		
 		return $result;
