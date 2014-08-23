@@ -20,6 +20,14 @@ class Podiya {
 	protected $events = array();
 
 	/**
+	 * An array that contains registered listeners
+	 *
+	 * @access		protected
+	 * @since		0.2
+	 */
+	protected $listeners = array();
+
+	/**
 	 * Registers an event handler for an event
 	 *
 	 * @access		public
@@ -34,17 +42,20 @@ class Podiya {
 	}
 
 	/**
-	 * Unregister the event handlers for an event
+	 * Unregister an event handler for an event
 	 *
 	 * @access		public
 	 * @param		string $eventName The registered event's name
 	 * @return		\Podiya\Podiya Returns the class
 	 * @since		0.1
 	 */
-	public function unregisterEvent($eventName) {
+	public function unregisterEvent($eventName, callable $callback) {
 		if ($this->eventRegistered($eventName)) {
-			foreach ($this->events[$eventName] as $key => $value) {
-				$this->events[$eventName][$key] = array_splice($this->events[$eventName][$key], 0, 1);
+			foreach ($this->events[$eventName] as $priority => $events) {
+				$index = array_search($callback, $this->events[$eventName][$priority], true);
+				if ($index !== false) {
+					unset($this->events[$eventName][$priority][$index]);
+				}
 			}
 		}
 
@@ -68,7 +79,7 @@ class Podiya {
 	}
 	
 	/**
-	 * Registers a listener class
+	 * Register a listener class
 	 *
 	 * @access		public
 	 * @param		\Podiya\Listener $listener The listener class to be registered
@@ -76,12 +87,31 @@ class Podiya {
 	 * @since		0.1
 	 */
 	public function registerListener(\Podiya\Listener $listener) {
+		$this->listeners[] = $listener;
 		$listener->registerEvents($this);
+		return $this;
+	}
+
+	/**
+	 * Unregister a listener class
+	 *
+	 * @access		public
+	 * @param		\Podiya\Listener $listener The listener class to be unregistered
+	 * @return		\Podiya\Podiya Returns the class
+	 * @version		0.2
+	 */
+	public function unregisterListener(\Podiya\Listener $listener) {
+		$index = array_search($listener, $this->listeners, true);
+		if ($index !== false) {
+			unset($this->listeners[$index]);
+		}
+		
+		$listener->unregisterEvents($this);
 		return $this;
 	}
 	
 	/**
-	 * Call an event to be handled by a listener
+	 * Call an event to be handled by an event handler
 	 *
 	 * The arguments passed to callEvent() will be passed to the
 	 * event handler, the last argument that is passed to the event
