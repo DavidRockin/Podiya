@@ -1,5 +1,6 @@
 Podiya Todo List
 ======
 
-* Figure out a better way to explain how Podiya works
+* Setup the Wiki (or some sort of docs) to show the usage of Podiya + installation
+* Composer support
 
