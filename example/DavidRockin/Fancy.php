@@ -23,6 +23,10 @@ class Fancy implements \Podiya\Listener {
 		$podiya->registerEvent("create_post", [$this, "fancyPost"]);
 	}
 	
+	public function unregisterEvents(\Podiya\Podiya $podiya) {
+		$podiya->unregisterEvent("create_post", [$this, "fancyPost"]);
+	}
+	
 	public function fancyPost($username, $group, $message, $date) {
 		$result = "<div style=\"padding: 9px 16px;border:1px solid #DADADA;margin-bottom:16px;background:#F1F1F1;font-family:Arial;font-size:15px;\">" .
 			"<strong>Posted by</strong> " . $this->podiya->callEvent("format_username", $username) . 

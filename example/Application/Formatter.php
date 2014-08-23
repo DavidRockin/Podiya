@@ -26,6 +26,14 @@ class Formatter implements \Podiya\Listener {
 				->registerEvent("create_post", [$this, "makePost"]);
 	}
 	
+	public function unregisterEvents(\Podiya\Podiya $podiya) {
+		$podiya->unregisterEvent("format_username", [$this, "formatUsername"])
+				->unregisterEvent("format_group", [$this, "formatGroup"])
+				->unregisterEvent("format_message", [$this, "formatMessage"])
+				->unregisterEvent("format_date", [$this, "formatDate"])
+				->unregisterEvent("create_post", [$this, "makePost"]);
+	}
+	
 	public function formatUsername($username) {
 		return $username;
 	}

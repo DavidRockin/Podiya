@@ -22,7 +22,11 @@ class FancyExamplePlugin implements \Podiya\Listener {
 		$this->podiya = $podiya;
 		$podiya->registerEvent("format_message", [$this, "formatMessage"]);
 	}
-
+	
+	public function unregisterEvents(\Podiya\Podiya $podiya) {
+		$podiya->unregisterEvent("format_message", [$this, "formatMessage"]);
+	}
+	
 	public function formatMessage($message) {
 		$message = strip_tags($message);
 		$message = preg_replace("/\[b\](.+?)\[\/b\]/is", "<span style='font-weight:bold'>$1</span>", $message);

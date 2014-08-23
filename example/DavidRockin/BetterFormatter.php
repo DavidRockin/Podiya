@@ -23,7 +23,12 @@ class BetterFormatter implements \Podiya\Listener {
 		$podiya->registerEvent("format_group", [$this, "betterGroup"])
 				->registerEvent("format_date", [$this, "betterDate"]);
 	}
-
+	
+	public function unregisterEvents(\Podiya\Podiya $podiya) {
+		$podiya->unregisterEvent("format_group", [$this, "betterGroup"])
+				->unregisterEvent("format_date", [$this, "betterDate"]);
+	}
+	
 	public function betterGroup($groupName) {
 		switch (strtolower($groupName)) {
 			case "admin":
