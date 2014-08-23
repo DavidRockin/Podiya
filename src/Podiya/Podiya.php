@@ -32,15 +32,32 @@ class Podiya {
 	}
 
 	/**
-	 * Unregister the event except for the default event
+	 * Unregister the event handlers for an event
 	 *
 	 * @access		public
 	 * @param		string $eventName The registered event's name
 	 * @return		\Podiya\Podiya Returns the class
 	 */
 	public function unregisterEvent($eventName) {
-		foreach ($this->events[$eventName] as $key => $value) {
-			$this->events[$eventName][$key] = array_splice($this->events[$eventName][$key], 0, 1);
+		if ($this->eventRegistered($eventName) {
+			foreach ($this->events[$eventName] as $key => $value) {
+				$this->events[$eventName][$key] = array_splice($this->events[$eventName][$key], 0, 1);
+			}
+		}
+
+		return $this;
+	}
+
+	/**
+	 * Remove a registered event
+	 *
+	 * @access		public
+	 * @param		string $eventName The registered event's name
+	 * @return		\Podiya\Podiya Returns the class
+	 */
+	public function removeEvent($eventName) {
+		if ($this->eventRegistered($eventName)) {
+			unset($this->events[$eventName]);
 		}
 
 		return $this;
@@ -71,7 +88,7 @@ class Podiya {
 	 * @return		mixed Result of the event
 	 */
 	public function callEvent($eventName) {
-		if (!$this->eventIsRegistered($eventName))
+		if (!$this->eventRegistered($eventName))
 			return;
 
 		// Get the passed arguments
@@ -99,7 +116,7 @@ class Podiya {
 	 * @param		string $eventName The targeted event's name
 	 * @return		bool Whether or not the event was registered
 	 */
-	public function eventIsRegistered($eventName) {
+	public function eventRegistered($eventName) {
 		return (isset($this->events[$eventName]) && !empty($this->events[$eventName]));
 	}
 
