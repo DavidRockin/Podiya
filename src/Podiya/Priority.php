@@ -9,7 +9,7 @@ namespace Podiya;
  *
  * @author		David Tkachuk
  * @package		Podiya
- * @version		0.1
+ * @version		0.2
  */
 class Priority {
 

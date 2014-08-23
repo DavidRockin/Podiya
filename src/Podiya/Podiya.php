@@ -7,7 +7,7 @@ namespace Podiya;
  *
  * @author		David Tkachuk
  * @package		Podiya
- * @version		0.1
+ * @version		0.2
  */
 class Podiya {
 
@@ -15,6 +15,7 @@ class Podiya {
 	 * An array that contains registered events
 	 *
 	 * @access		protected
+	 * @since		0.1
 	 */
 	protected $events = array();
 
@@ -25,6 +26,7 @@ class Podiya {
 	 * @param		string $eventName The registered event's name
 	 * @param		callable $callback A callback that will handle the event
 	 * @return		\Podiya\Podiya Returns the class
+	 * @since		0.1
 	 */
 	public function registerEvent($eventName, callable $callback, $priority = \Podiya\Priority::NORMAL) {
 		$this->events[$eventName][$priority][] = $callback;
@@ -37,6 +39,7 @@ class Podiya {
 	 * @access		public
 	 * @param		string $eventName The registered event's name
 	 * @return		\Podiya\Podiya Returns the class
+	 * @since		0.1
 	 */
 	public function unregisterEvent($eventName) {
 		if ($this->eventRegistered($eventName)) {
@@ -54,6 +57,7 @@ class Podiya {
 	 * @access		public
 	 * @param		string $eventName The registered event's name
 	 * @return		\Podiya\Podiya Returns the class
+	 * @since		0.2
 	 */
 	public function removeEvent($eventName) {
 		if ($this->eventRegistered($eventName)) {
@@ -69,6 +73,7 @@ class Podiya {
 	 * @access		public
 	 * @param		\Podiya\Listener $listener The listener class to be registered
 	 * @return		\Podiya\Podiya Returns the class
+	 * @since		0.1
 	 */
 	public function registerListener(\Podiya\Listener $listener) {
 		$listener->registerEvents($this);
@@ -86,6 +91,7 @@ class Podiya {
 	 * @param		string $eventName The targeted event's name
 	 * @param		mixed $variable,... The option and unlimited options passed to the event
 	 * @return		mixed Result of the event
+	 * @since		0.1
 	 */
 	public function callEvent($eventName) {
 		if (!$this->eventRegistered($eventName))
@@ -115,6 +121,7 @@ class Podiya {
 	 * @access		public
 	 * @param		string $eventName The targeted event's name
 	 * @return		bool Whether or not the event was registered
+	 * @since		0.1
 	 */
 	public function eventRegistered($eventName) {
 		return (isset($this->events[$eventName]) && !empty($this->events[$eventName]));
