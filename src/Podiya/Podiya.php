@@ -30,6 +30,18 @@ class Podiya {
 		$this->listeners[$eventName][] = $callback;
 		return $this;
 	}
+
+	/**
+	 * Unregister the event except for the default event
+	 *
+	 * @access		public
+	 * @param		string $eventName The registered event's name
+	 * @return		\Podiya\Podiya Returns the class
+	 */
+	public function unregisterEvent($eventName) {
+		$this->listeners[$eventName] = array_splice($this->listeners[$eventName], 0, 1);
+		return $this;
+	}
 	
 	/**
 	 * Registers a listener class
@@ -75,7 +87,7 @@ class Podiya {
 	 * @param		string $eventName The targeted event's name
 	 * @return		bool Whether or not the event was registered
 	 */
-	private function eventIsRegistered($eventName) {
+	public function eventIsRegistered($eventName) {
 		return (isset($this->listeners[$eventName]) && !empty($this->listeners[$eventName]));
 	}
 

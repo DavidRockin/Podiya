@@ -13,10 +13,10 @@ namespace Podiya;
  */
 class Priority {
 
-	const URGENT = 0;
-	const HIGH = 1;
-	const NORMAL = 2;
-	const LOW = 3;
+	const LOW = 0;
+	const NORMAL = 1;
+	const HIGH = 2;
+	const URGENT = 3;
 
 }
 
