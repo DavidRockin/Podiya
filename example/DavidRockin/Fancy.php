@@ -1,6 +1,6 @@
 <?php
 
-namespace DavidRockin;
+namespace DavidRockin\PodiyaExample;
 
 /**
  * An example Poydia listener
@@ -10,20 +10,20 @@ namespace DavidRockin;
  * the display of posts
  *
  * @author		David Tkachuk
- * @package		Poydia-Example
+ * @package		PoydiaExample
  * @subpackage	Poydia
  * @version		0.1
  */
-class Fancy implements \Podiya\Listener {
+class Fancy implements \DavidRockin\Podiya\Listener {
 
 	private $podiya;
 
-	public function registerEvents(\Podiya\Podiya $podiya) {
+	public function registerEvents(\DavidRockin\Podiya\Podiya $podiya) {
 		$this->podiya = $podiya;
 		$podiya->registerEvent("create_post", [$this, "fancyPost"]);
 	}
 	
-	public function unregisterEvents(\Podiya\Podiya $podiya) {
+	public function unregisterEvents(\DavidRockin\Podiya\Podiya $podiya) {
 		$podiya->unregisterEvent("create_post", [$this, "fancyPost"]);
 	}
 	

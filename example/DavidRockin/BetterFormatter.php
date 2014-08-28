@@ -1,6 +1,6 @@
 <?php
 
-namespace DavidRockin;
+namespace DavidRockin\PodiyaExample;
 
 /**
  * An example Poydia listener
@@ -10,21 +10,21 @@ namespace DavidRockin;
  * the group and date formatting
  *
  * @author		David Tkachuk
- * @package		Poydia-Example
+ * @package		PoydiaExample
  * @subpackage	Poydia
  * @version		0.1
  */
-class BetterFormatter implements \Podiya\Listener {
+class BetterFormatter implements \DavidRockin\Podiya\Listener {
 
 	private $podiya;
 
-	public function registerEvents(\Podiya\Podiya $podiya) {
+	public function registerEvents(\DavidRockin\Podiya\Podiya $podiya) {
 		$this->podiya = $podiya;
 		$podiya->registerEvent("format_group", [$this, "betterGroup"])
 				->registerEvent("format_date", [$this, "betterDate"]);
 	}
 	
-	public function unregisterEvents(\Podiya\Podiya $podiya) {
+	public function unregisterEvents(\DavidRockin\Podiya\Podiya $podiya) {
 		$podiya->unregisterEvent("format_group", [$this, "betterGroup"])
 				->unregisterEvent("format_date", [$this, "betterDate"]);
 	}

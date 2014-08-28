@@ -21,7 +21,7 @@ interface Listener {
 	 * @param		\Podiya\Podiya $podiya The main podiya class
 	 * @since		0.1
 	 */
-	public function registerEvents(\Podiya\Podiya $podiya);
+	public function registerEvents(\DavidRockin\Podiya\Podiya $podiya);
 
 	/**
 	 * Unregisters the listener's event handlers
@@ -33,7 +33,7 @@ interface Listener {
 	 * @param		\Podiya\Podiya $podiya The main podiya class
 	 * @since		0.2
 	 */
-	public function unregisterEvents(\Podiya\Podiya $podiya);
+	public function unregisterEvents(\DavidRockin\Podiya\Podiya $podiya);
 
 }
 

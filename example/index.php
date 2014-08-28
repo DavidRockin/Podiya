@@ -4,12 +4,11 @@ define("BASEDIR", dirname(__FILE__) . "/");
 define("SRCDIR", dirname(BASEDIR) . "/src/");
 
 // Include Poydia files
-include SRCDIR . "/Podiya/Podiya.php";
-include SRCDIR . "/Podiya/Listener.php";
-include SRCDIR . "/Podiya/Priority.php";
+include SRCDIR . "/Podiya.php";
+include SRCDIR . "/Listener.php";
 
 // Setup Poydia
-$podiya = new \Podiya\Podiya();
+$podiya = new \DavidRockin\Podiya\Podiya();
 
 // Include the listeners
 include BASEDIR . "/Application/Formatter.php";
@@ -18,10 +17,10 @@ include BASEDIR . "/DavidRockin/BetterFormatter.php";
 include BASEDIR . "/DavidRockin/Fancy.php";
 
 // Initialize the listeners
-$defaultFormatter = new \Application\Formatter();
-$fancyExamplePlugin = new \DavidRockin\FancyExamplePlugin();
-$betterFormatter = new \DavidRockin\BetterFormatter();
-$fancy = new \DavidRockin\Fancy();
+$defaultFormatter = new \DavidRockin\PodiyaExample\Formatter();
+$fancyExamplePlugin = new \DavidRockin\PodiyaExample\FancyExamplePlugin();
+$betterFormatter = new \DavidRockin\PodiyaExample\BetterFormatter();
+$fancy = new \DavidRockin\PodiyaExample\Fancy();
 
 // Register the default application listeners 
 $podiya->registerListener($defaultFormatter)

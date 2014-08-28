@@ -1,6 +1,6 @@
 <?php
 
-namespace Application;
+namespace DavidRockin\PodiyaExample;
 
 /**
  * A default Poydia listener
@@ -9,15 +9,15 @@ namespace Application;
  * will override its functionality
  *
  * @author		David Tkachuk
- * @package		Poydia-Example
+ * @package		PoydiaExample
  * @subpackage	Poydia
  * @version		0.1
  */
-class Formatter implements \Podiya\Listener {
+class Formatter implements \DavidRockin\Podiya\Listener {
 
 	private $podiya;
 
-	public function registerEvents(\Podiya\Podiya $podiya) {
+	public function registerEvents(\DavidRockin\Podiya\Podiya $podiya) {
 		$this->podiya = $podiya;
 		$podiya->registerEvent("format_username", [$this, "formatUsername"])
 				->registerEvent("format_group", [$this, "formatGroup"])
@@ -26,7 +26,7 @@ class Formatter implements \Podiya\Listener {
 				->registerEvent("create_post", [$this, "makePost"]);
 	}
 	
-	public function unregisterEvents(\Podiya\Podiya $podiya) {
+	public function unregisterEvents(\DavidRockin\Podiya\Podiya $podiya) {
 		$podiya->unregisterEvent("format_username", [$this, "formatUsername"])
 				->unregisterEvent("format_group", [$this, "formatGroup"])
 				->unregisterEvent("format_message", [$this, "formatMessage"])

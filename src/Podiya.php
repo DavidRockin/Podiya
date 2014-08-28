@@ -93,7 +93,7 @@ class Podiya {
 	 * @return		\Podiya\Podiya Returns the class
 	 * @since		0.1
 	 */
-	public function registerListener(\Podiya\Listener $listener) {
+	public function registerListener(\DavidRockin\Podiya\Listener $listener) {
 		$this->listeners[] = $listener;
 		$listener->registerEvents($this);
 		return $this;
@@ -107,7 +107,7 @@ class Podiya {
 	 * @return		\Podiya\Podiya Returns the class
 	 * @version		0.2
 	 */
-	public function unregisterListener(\Podiya\Listener $listener) {
+	public function unregisterListener(\DavidRockin\Podiya\Listener $listener) {
 		$index = array_search($listener, $this->listeners, true);
 		if ($index !== false) {
 			unset($this->listeners[$index]);

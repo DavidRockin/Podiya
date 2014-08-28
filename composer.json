@@ -19,7 +19,8 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"DavidRockin\\Podiya\\": "src"
+			"DavidRockin\\Podiya\\": "src",
+			"DavidRockin\\PodiyaExample\\": "example"
 		}
 	}
 }
