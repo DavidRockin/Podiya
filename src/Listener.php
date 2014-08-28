@@ -7,7 +7,7 @@ namespace DavidRockin\Podiya;
  *
  * @author		David Tkachuk
  * @package		Podiya
- * @version		0.3
+ * @version		1.0
  */
 interface Listener {
 
@@ -18,7 +18,7 @@ interface Listener {
 	 * will be called to register the event handlers
 	 *
 	 * @access		public
-	 * @param		\Podiya\Podiya $podiya The main podiya class
+	 * @param		\DavidRockin\Podiya\Podiya $podiya The main podiya class
 	 * @since		0.1
 	 */
 	public function registerEvents(\DavidRockin\Podiya\Podiya $podiya);
@@ -30,7 +30,7 @@ interface Listener {
 	 * will be called to unregister its event handles
 	 *
 	 * @access		public
-	 * @param		\Podiya\Podiya $podiya The main podiya class
+	 * @param		\DavidRockin\Podiya\Podiya $podiya The main podiya class
 	 * @since		0.2
 	 */
 	public function unregisterEvents(\DavidRockin\Podiya\Podiya $podiya);

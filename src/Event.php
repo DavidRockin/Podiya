@@ -7,11 +7,11 @@ namespace DavidRockin\Podiya;
  *
  * This class will be used whenever an event is called.
  * This class will be passed to all of the handlers of
- * a registered event.
+ * a registered event along with their results.
  *
  * @author		David Tkachuk
  * @package		Podiya
- * @version		0.3
+ * @version		1.0
  */
 class Event {
 
@@ -30,6 +30,14 @@ class Event {
 	 * @since		0.3
 	 */
 	private $isCancelled = false;
+	
+	/**
+	 * An array that contains the results of previous event handlers
+	 *
+	 * @access		private
+	 * @since		1.0
+	 */
+	private $previousResults = array();
 	
 	/**
 	 * Constructor method of Event
@@ -73,6 +81,40 @@ class Event {
 	 */
 	public function isCancelled() {
 		return $this->isCancelled;
+	}
+	
+	/**
+	 * Gets the result of the previous event handler
+	 *
+	 * @access		public
+	 * @return		mixed Result of previous event handler
+	 * @since		1.0
+	 */
+	public function getPreviousResult() {
+		$key = count($this->previousResults)-1;
+		return $this->previousResults[$key];
+	}
+	
+	/**
+	 * Gets an array of all previous event handlers' results
+	 *
+	 * @access		public
+	 * @return		array Array of previous event handlers results
+	 * @since		1.0
+	 */
+	public function getPreviousResults() {
+		return $this->previousResults;
+	}
+	
+	/**
+	 * Adds the previous event handler's result
+	 *
+	 * @access		public
+	 * @param		mixed $result The result of the previous event handler
+	 * @since		1.0
+	 */
+	public function addPreviousResult($result) {
+		$this->previousResults[] = $result;
 	}
 
 }

@@ -3,15 +3,15 @@
 namespace DavidRockin\PodiyaExample;
 
 /**
- * A default Poydia listener
+ * A default Podiya listener
  *
- * This is the default Poydia listener, which other plugins/listeners
+ * This is the default Podiya listener, which other plugins/listeners
  * will override its functionality
  *
  * @author		David Tkachuk
- * @package		PoydiaExample
- * @subpackage	Poydia
- * @version		0.3
+ * @package		PodiyaExample
+ * @subpackage	Podiya
+ * @version		1.0
  */
 class Formatter implements \DavidRockin\Podiya\Listener {
 

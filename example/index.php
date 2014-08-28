@@ -3,12 +3,12 @@
 define("BASEDIR", dirname(__FILE__) . "/");
 define("SRCDIR", dirname(BASEDIR) . "/src/");
 
-// Include Poydia files
+// Include Podiya files
 include SRCDIR . "/Podiya.php";
 include SRCDIR . "/Listener.php";
 include SRCDIR . "/Event.php";
 
-// Setup Poydia
+// Setup Podiya
 $podiya = new \DavidRockin\Podiya\Podiya();
 
 // Include the listeners

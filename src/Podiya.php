@@ -7,7 +7,7 @@ namespace DavidRockin\Podiya;
  *
  * @author		David Tkachuk
  * @package		Podiya
- * @version		0.3
+ * @version		1.0
  */
 class Podiya {
 
@@ -40,8 +40,9 @@ class Podiya {
 	 * @access		public
 	 * @param		string $eventName The registered event's name
 	 * @param		callable $callback A callback that will handle the event
+	 * @param		int $priority Priority of the event (0-5)
 	 * @param		bool $ignoreCancelled Handle the callback, even if the previous event handler cancelled it
-	 * @return		\Podiya\Podiya Returns the class
+	 * @return		\DavidRockin\Podiya\Podiya Returns the class
 	 * @since		0.1
 	 */
 	public function registerEvent($eventName, callable $callback, $priority = self::PRIORITY_NORMAL, $ignoreCancelled = false) {
@@ -59,7 +60,7 @@ class Podiya {
 	 *
 	 * @access		public
 	 * @param		string $eventName The registered event's name
-	 * @return		\Podiya\Podiya Returns the class
+	 * @return		\DavidRockin\Podiya\Podiya Returns the class
 	 * @since		0.1
 	 */
 	public function unregisterEvent($eventName, callable $callback) {
@@ -80,7 +81,7 @@ class Podiya {
 	 *
 	 * @access		public
 	 * @param		string $eventName The registered event's name
-	 * @return		\Podiya\Podiya Returns the class
+	 * @return		\DavidRockin\Podiya\Podiya Returns the class
 	 * @since		0.2
 	 */
 	public function removeEvent($eventName) {
@@ -94,9 +95,12 @@ class Podiya {
 	/**
 	 * Register a listener class
 	 *
+	 * When registering a listener, a call with be
+	 * made to the listener class to register its events
+	 *
 	 * @access		public
-	 * @param		\Podiya\Listener $listener The listener class to be registered
-	 * @return		\Podiya\Podiya Returns the class
+	 * @param		\DavidRockin\Podiya\Listener $listener The listener class to be registered
+	 * @return		\DavidRockin\Podiya\Podiya Returns the class
 	 * @since		0.1
 	 */
 	public function registerListener(\DavidRockin\Podiya\Listener $listener) {
@@ -108,9 +112,12 @@ class Podiya {
 	/**
 	 * Unregister a listener class
 	 *
+	 * When unregistering a listener, a call will be
+	 * made to the listener class to unregister its events
+	 *
 	 * @access		public
-	 * @param		\Podiya\Listener $listener The listener class to be unregistered
-	 * @return		\Podiya\Podiya Returns the class
+	 * @param		\DavidRockin\Podiya\Listener $listener The listener class to be unregistered
+	 * @return		\DavidRockin\Podiya\Podiya Returns the class
 	 * @version		0.2
 	 */
 	public function unregisterListener(\DavidRockin\Podiya\Listener $listener) {
@@ -126,13 +133,15 @@ class Podiya {
 	/**
 	 * Call an event to be handled by an event handler
 	 *
-	 * The arguments passed to callEvent() will be passed to the
-	 * event handler, the last argument that is passed to the event
-	 * handler is the result of the previous event handler.
+	 * The first argument passed to the registered event handler
+	 * is the even class that contains information such as result
+	 * of the previous event handler, along with information such as
+	 * event name and if it was cancelled or not. The reset of the
+	 * arguments are the optional arguments that was passed to callEvent()
 	 *
 	 * @access		public
 	 * @param		string $eventName The targeted event's name
-	 * @param		mixed $variable,... The option and unlimited options passed to the event
+	 * @param		mixed $variable,... The optional and unlimited args passed to the event
 	 * @return		mixed Result of the event
 	 * @since		0.1
 	 */
@@ -158,7 +167,8 @@ class Podiya {
 				if ($event->isCancelled() && $registeredEvent['ignoreCancelled'] !== true)
 					continue;
 
-				$arguments = array_merge(array(), array($event), $args, array($result));
+				$event->addPreviousResult($result);
+				$arguments = array_merge(array(), array($event), $args);
 				$result = call_user_func_array($registeredEvent['callback'], $arguments);
 			}
 		}
@@ -176,6 +186,19 @@ class Podiya {
 	 */
 	public function eventRegistered($eventName) {
 		return (isset($this->events[$eventName]) && !empty($this->events[$eventName]));
+	}
+	
+	/**
+	 * Determine if the listener has been registered
+	 *
+	 * @access		public
+	 * @param		\DavidRockin\Podiya\Listener $listener The listener
+	 * @return		bool Indicates if the listener was registered
+	 * @since		1.0
+	 */
+	public function listenerRegistered(\DavidRockin\Podiya\Listener $listener) {
+		$index = array_search($listener, $this->listeners, true);
+		return ($index !== false);
 	}
 	
 	/**

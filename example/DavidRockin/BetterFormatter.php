@@ -3,16 +3,16 @@
 namespace DavidRockin\PodiyaExample;
 
 /**
- * An example Poydia listener
+ * An example Podiya listener
  *
  * This is an example listener/plugin, which will override
  * previously called listeners. This example listener enhances
  * the group and date formatting
  *
  * @author		David Tkachuk
- * @package		PoydiaExample
- * @subpackage	Poydia
- * @version		0.3
+ * @package		PodiyaExample
+ * @subpackage	Podiya
+ * @version		1.0
  */
 class BetterFormatter implements \DavidRockin\Podiya\Listener {
 
