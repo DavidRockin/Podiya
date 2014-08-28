@@ -114,12 +114,12 @@ class Podiya {
 	 * @version		0.2
 	 */
 	public function unregisterListener(\DavidRockin\Podiya\Listener $listener) {
+		$listener->unregisterEvents($this);
 		$index = array_search($listener, $this->listeners, true);
 		if ($index !== false) {
 			unset($this->listeners[$index]);
 		}
-		
-		$listener->unregisterEvents($this);
+
 		return $this;
 	}
 	
@@ -150,14 +150,14 @@ class Podiya {
 
 		// Loop through the register events by priority
 		for ($i = 0; $i < 6; $i++) {
-		
 			if (!isset($this->events[$eventName][$i]))
 				continue;
 
 			// Loop through the registered events of this priority
-			$events = $this->events[$eventName][$i];
-			foreach ($events as $registeredEvent) {
-				if ($event->isCancelled() && $registeredEvent['ignoreCancelled'] !== true) continue;
+			foreach ($this->events[$eventName][$i] as $registeredEvent) {
+				if ($event->isCancelled() && $registeredEvent['ignoreCancelled'] !== true)
+					continue;
+
 				$arguments = array_merge(array(), array($event), $args, array($result));
 				$result = call_user_func_array($registeredEvent['callback'], $arguments);
 			}
