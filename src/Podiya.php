@@ -11,6 +11,13 @@ namespace DavidRockin\Podiya;
  */
 class Podiya {
 
+	const PRIORITY_LOWEST	= 0;
+	const PRIORITY_LOW		= 1;
+	const PRIORITY_NORMAL	= 2;
+	const PRIORITY_HIGH		= 3;
+	const PRIORITY_HIGHEST	= 4;
+	const PRIORITY_URGENT	= 5;
+	
 	/**
 	 * An array that contains registered events
 	 *
@@ -36,7 +43,7 @@ class Podiya {
 	 * @return		\Podiya\Podiya Returns the class
 	 * @since		0.1
 	 */
-	public function registerEvent($eventName, callable $callback, $priority = \Podiya\Priority::NORMAL) {
+	public function registerEvent($eventName, callable $callback, $priority = self::PRIORITY_NORMAL) {
 		$this->events[$eventName][$priority][] = $callback;
 		return $this;
 	}
