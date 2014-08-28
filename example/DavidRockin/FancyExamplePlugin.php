@@ -27,7 +27,7 @@ class FancyExamplePlugin implements \DavidRockin\Podiya\Listener {
 		$podiya->unregisterEvent("format_message", [$this, "formatMessage"]);
 	}
 	
-	public function formatMessage($message) {
+	public function formatMessage(\DavidRockin\Podiya\Event $event, $message) {
 		$message = strip_tags($message);
 		$message = preg_replace("/\[b\](.+?)\[\/b\]/is", "<span style='font-weight:bold'>$1</span>", $message);
 		$message = preg_replace("/\[u\](.+?)\[\/u\]/is", "<span style='text-decoration:underline'>$1</span>", $message);

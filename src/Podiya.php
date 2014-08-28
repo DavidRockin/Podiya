@@ -40,11 +40,17 @@ class Podiya {
 	 * @access		public
 	 * @param		string $eventName The registered event's name
 	 * @param		callable $callback A callback that will handle the event
+	 * @param		bool $ignoreCancelled Handle the callback, even if the previous event handler cancelled it
 	 * @return		\Podiya\Podiya Returns the class
 	 * @since		0.1
 	 */
-	public function registerEvent($eventName, callable $callback, $priority = self::PRIORITY_NORMAL) {
-		$this->events[$eventName][$priority][] = $callback;
+	public function registerEvent($eventName, callable $callback, $priority = self::PRIORITY_NORMAL, $ignoreCancelled = false) {
+		$this->events[$eventName][$priority][] = array(
+			"eventName"			=> $eventName,
+			"callback"			=> $callback,
+			"priority"			=> $priority,
+			"ignoreCancelled"	=> $ignoreCancelled,
+		);
 		return $this;
 	}
 
@@ -59,7 +65,7 @@ class Podiya {
 	public function unregisterEvent($eventName, callable $callback) {
 		if ($this->eventRegistered($eventName)) {
 			foreach ($this->events[$eventName] as $priority => $events) {
-				$index = array_search($callback, $this->events[$eventName][$priority], true);
+				$index = $this->arraySearchRecursive($callback, $this->events[$eventName][$priority], true);
 				if ($index !== false) {
 					unset($this->events[$eventName][$priority][$index]);
 				}
@@ -137,15 +143,23 @@ class Podiya {
 		// Get the passed arguments
 		$args = func_get_args();
 		array_shift($args);
+		
+		// Setup the event
+		$event = new \DavidRockin\Podiya\Event($eventName);
 		$result = null;
 
+		// Loop through the register events by priority
 		for ($i = 0; $i < 6; $i++) {
-			if (!isset($this->events[$eventName][$i])) continue;
-			$events = $this->events[$eventName][$i];
+		
+			if (!isset($this->events[$eventName][$i]))
+				continue;
 
-			foreach ($events as $callback) {
-				$arguments = array_merge($args, array($result));
-				$result = call_user_func_array($callback, $arguments);
+			// Loop through the registered events of this priority
+			$events = $this->events[$eventName][$i];
+			foreach ($events as $registeredEvent) {
+				if ($event->isCancelled() && $registeredEvent['ignoreCancelled'] !== true) continue;
+				$arguments = array_merge(array(), array($event), $args, array($result));
+				$result = call_user_func_array($registeredEvent['callback'], $arguments);
 			}
 		}
 		
@@ -162,6 +176,24 @@ class Podiya {
 	 */
 	public function eventRegistered($eventName) {
 		return (isset($this->events[$eventName]) && !empty($this->events[$eventName]));
+	}
+	
+	/**
+	 * Recursive array search
+	 *
+	 * @access		public
+	 * @param		mixed $needle The value to be searched
+	 * @param		array $haystack The array
+	 * @return		mixed Returns the key for the needle if found, false if not found
+	 * @since		0.3
+	 */
+	private function arraySearchRecursive($needle, $haystack) {
+		foreach ($haystack as $key => $value) {
+			if ($needle === $value || (is_array($value) && $this->arraySearchRecursive($needle, $value) !== false))
+				return $key;
+		}
+
+		return false;
 	}
 
 }

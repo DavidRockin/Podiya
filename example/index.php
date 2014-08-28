@@ -6,6 +6,7 @@ define("SRCDIR", dirname(BASEDIR) . "/src/");
 // Include Poydia files
 include SRCDIR . "/Podiya.php";
 include SRCDIR . "/Listener.php";
+include SRCDIR . "/Event.php";
 
 // Setup Poydia
 $podiya = new \DavidRockin\Podiya\Podiya();

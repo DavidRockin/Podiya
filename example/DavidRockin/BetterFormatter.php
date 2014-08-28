@@ -29,7 +29,7 @@ class BetterFormatter implements \DavidRockin\Podiya\Listener {
 				->unregisterEvent("format_date", [$this, "betterDate"]);
 	}
 	
-	public function betterGroup($groupName) {
+	public function betterGroup(\DavidRockin\Podiya\Event $event, $groupName) {
 		switch (strtolower($groupName)) {
 			case "admin":
 			case "administrator":
@@ -45,7 +45,7 @@ class BetterFormatter implements \DavidRockin\Podiya\Listener {
 		return $groupName;
 	}
 	
-	public function betterDate($date) {
+	public function betterDate(\DavidRockin\Podiya\Event $event, $date) {
 		return date("F j, Y h:i:s A T", $date);
 	}
 	

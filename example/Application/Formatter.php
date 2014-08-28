@@ -34,29 +34,29 @@ class Formatter implements \DavidRockin\Podiya\Listener {
 				->unregisterEvent("create_post", [$this, "makePost"]);
 	}
 	
-	public function formatUsername($username) {
+	public function formatUsername(\DavidRockin\Podiya\Event $event, $username) {
 		return $username;
 	}
 	
-	public function formatGroup($groupName) {
+	public function formatGroup(\DavidRockin\Podiya\Event $event, $groupName) {
 		return $groupName;
 	}
 	
-	public function formatMessage($message) {
+	public function formatMessage(\DavidRockin\Podiya\Event $event, $message) {
 		return nl2br($message);
 	}
 	
-	public function formatDate($date) {
+	public function formatDate(\DavidRockin\Podiya\Event $event, $date) {
 		return date("F j, Y h:i:s A", $date);
 	}
 	
-	public function makePost($username, $group, $message, $date) {
+	public function makePost(\DavidRockin\Podiya\Event $event, $username, $group, $message, $date) {
 		$result = "<div style=\"padding: 9px 16px;border:1px solid #EEE;margin-bottom:16px;\">" .
 			"<strong>Posted by</strong> " . $this->podiya->callEvent("format_username", $username) . 
 				" (" . $this->podiya->callEvent("format_group", $group) . ")<br />" .
 			"<strong>Posted Date</strong> " . $this->podiya->callEvent("format_date", $date) . "<br />" .
 				$this->podiya->callEvent("format_message", $message);
-		
+
 		return $result . "</div>";
 	}
 
