@@ -7,7 +7,7 @@ namespace DavidRockin\Podiya;
  *
  * @author		David Tkachuk
  * @package		Podiya
- * @version		0.2
+ * @version		0.3
  */
 class Podiya {
 

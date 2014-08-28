@@ -11,7 +11,7 @@ namespace DavidRockin\PodiyaExample;
  * @author		David Tkachuk
  * @package		PoydiaExample
  * @subpackage	Poydia
- * @version		0.1
+ * @version		0.3
  */
 class Formatter implements \DavidRockin\Podiya\Listener {
 
