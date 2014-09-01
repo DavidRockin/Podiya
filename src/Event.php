@@ -7,11 +7,14 @@ namespace DavidRockin\Podiya;
  *
  * This class will be used whenever an event is called.
  * This class will be passed to all of the handlers of
- * a registered event along with their results.
+ * a registered event along with their results. This class
+ * allows event handlers to easily share information 
+ * with other event handlers.
  *
  * @author		David Tkachuk
  * @package		Podiya
  * @version		1.0
+ * @TODO		Store passed vars in an array using magic methods?
  */
 class Event {
 

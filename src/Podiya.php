@@ -95,7 +95,7 @@ class Podiya {
 	/**
 	 * Register a listener class
 	 *
-	 * When registering a listener, a call with be
+	 * When registering a listener, a call will be
 	 * made to the listener class to register its events
 	 *
 	 * @access		public
@@ -134,10 +134,12 @@ class Podiya {
 	 * Call an event to be handled by an event handler
 	 *
 	 * The first argument passed to the registered event handler
-	 * is the even class that contains information such as result
+	 * is the event class that contains information such as result
 	 * of the previous event handler, along with information such as
-	 * event name and if it was cancelled or not. The reset of the
-	 * arguments are the optional arguments that was passed to callEvent()
+	 * event name and if it was cancelled or not. The event class can
+	 * also be used to share information to other similar event handlers.
+	 * The rest of the arguments are the optional arguments that was
+	 * passed when calling callEvent()
 	 *
 	 * @access		public
 	 * @param		string $eventName The targeted event's name
@@ -168,7 +170,7 @@ class Podiya {
 					continue;
 
 				$event->addPreviousResult($result);
-				$arguments = array_merge(array(), array($event), $args);
+				$arguments = array_merge(array($event), $args);
 				$result = call_user_func_array($registeredEvent['callback'], $arguments);
 			}
 		}
@@ -197,8 +199,7 @@ class Podiya {
 	 * @since		1.0
 	 */
 	public function listenerRegistered(\DavidRockin\Podiya\Listener $listener) {
-		$index = array_search($listener, $this->listeners, true);
-		return ($index !== false);
+		return (array_search($listener, $this->listeners, true) !== false);
 	}
 	
 	/**
