@@ -156,7 +156,7 @@ class Podiya {
 		array_shift($args);
 		
 		// Setup the event
-		$event = new \DavidRockin\Podiya\Event($eventName);
+		$event = new \DavidRockin\Podiya\Event($eventName, $this);
 		$result = null;
 
 		// Loop through the register events by priority

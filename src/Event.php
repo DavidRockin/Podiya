@@ -43,14 +43,23 @@ class Event {
 	private $previousResults = array();
 	
 	/**
+	 * An instance of the main Podiya class
+	 *
+	 * @access		private
+	 * @since		1.0
+	 */
+	private $podiya = null;
+	
+	/**
 	 * Constructor method of Event
 	 *
 	 * @access		public
 	 * @param		string $eventName The name of the event
 	 * @since		0.3
 	 */
-	public function __construct($eventName) {
+	public function __construct($eventName, \DavidRockin\Podiya\Podiya $podiya) {
 		$this->eventName = $eventName;
+		$this->podiya = $podiya;
 	}
 	
 	/**
@@ -118,6 +127,17 @@ class Event {
 	 */
 	public function addPreviousResult($result) {
 		$this->previousResults[] = $result;
+	}
+	
+	/**
+	 * Gets an instance of the Podiya class
+	 *
+	 * @access		public
+	 * @return		\DavidRockin\Podiya\Podiya Podiya class
+	 * @since		1.0
+	 */
+	public function getPodiya() {
+		return $this->podiya;
 	}
 
 }
