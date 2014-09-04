@@ -4,7 +4,7 @@
 	"keywords": ["event","listener","plugin","hook"],
 	"type": "library",
 	"homepage": "https://github.com/DavidRockin/Podiya",
-	"license": "GPL-3.0",
+	"license": "LGPL v2.1",
 	"version": "1.0",
 	"authors": [
 		{
