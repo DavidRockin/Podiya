@@ -15,8 +15,6 @@ namespace DavidRockin\Podiya;
  */
 class Event
 {
-    const NULLGUARD = null;
-    
     /**
      * The name of the event
      *
@@ -61,10 +59,12 @@ class Event
      * Constructor method of Event
      *
      * @access  public
-     * @param   string $eventName The name of the event
+     * @param   string  $eventName  The name of the event
+     * @param   mixed   $data       Data to be used by the event's handler
+     * @param   \DavidRockin\Podiya\Podiya  $podiya A reference back to a Podiya instance, if needed
      * @since   0.3
      */
-    public function __construct($name, $data, Podiya $podiya = null) {
+    public function __construct($name, $data = null, Podiya $podiya = null) {
         $this->name	  = $name;
         $this->data   = $data;
         $this->podiya = $podiya;
@@ -74,7 +74,7 @@ class Event
      * Returns the event's name
      *
      * @access  public
-     * @return  string Event name
+     * @return  string  Event name
      * @since   2.0
      */
     public function getName() {
@@ -85,7 +85,7 @@ class Event
      * Specifies if the event should be cancelled or not
      *
      * @access  public
-     * @param   bool $cancelled Cancel the event or not
+     * @param   bool    $cancelled  Cancel the event or not
      * @since   0.3
      */
     public function cancel($cancel = true) {
@@ -96,7 +96,7 @@ class Event
      * Determine if the event is cancelled or not
      *
      * @access  public
-     * @return  bool Return true if event cancelled, otherwise false
+     * @return  bool    Return true if event cancelled, otherwise false
      * @since   0.3
      */
     public function isCancelled() {
@@ -107,7 +107,7 @@ class Event
      * Gets the result of the previous event handler
      *
      * @access  public
-     * @return  mixed Result of previous event handler
+     * @return  mixed   Result of previous event handler
      * @since   1.0
      */
     public function getPreviousResult() {
@@ -118,7 +118,7 @@ class Event
      * Gets an array of all previous event handlers' results
      *
      * @access  public
-     * @return  array Array of previous event handlers results
+     * @return  array   Array of previous event handlers results
      * @since   1.0
      */
     public function getPreviousResults() {
@@ -129,7 +129,7 @@ class Event
      * Adds the previous event handler's result
      *
      * @access  public
-     * @param   mixed $result The result of the previous event handler
+     * @param   mixed   $result The result of the previous event handler
      * @since   1.0
      */
     public function addPreviousResult($result) {
@@ -141,7 +141,7 @@ class Event
      * Returns our instance of the Podiya class
      *
      * @access  public
-     * @return  \DavidRockin\Podiya\Podiya Podiya object reference
+     * @return  \DavidRockin\Podiya\Podiya  Podiya object reference
      * @since   1.0
      */
     public function getPodiya() {
@@ -152,7 +152,7 @@ class Event
      * Returns the event's data
      * 
      * @access  public
-     * @return  mixed The entire data array if no params, otherwise a specific key
+     * @return  mixed   The entire data array if no params, otherwise a specific key
      * @since   2.0
      */
     public function getData($key = null) {
@@ -161,8 +161,6 @@ class Event
         }
         if (isset($this->data[$key])) {
             return $this->data[$key];
-        } else {
-            return self::NULLGUARD;
         }
     }
 }
