@@ -5,220 +5,233 @@ namespace DavidRockin\Podiya;
 /**
  * Podiya main class
  *
- * @author		David Tkachuk
- * @package		Podiya
- * @version		1.0
+ * @author  David Tkachuk
+ * @package Podiya
+ * @version 2.0
  */
-class Podiya {
+class Podiya
+{
+    const PRIORITY_URGENT	= 0;
+    const PRIORITY_HIGHEST	= 1;
+    const PRIORITY_HIGH		= 2;
+    const PRIORITY_NORMAL	= 3;
+    const PRIORITY_LOW		= 4;
+    const PRIORITY_LOWEST	= 5;
+    
+    /**
+     * An array that contains registered events and their handlers by priority
+     *
+     * @access  private
+     * @since   0.1
+     */
+    private $events = [];
 
-	const PRIORITY_LOWEST	= 0;
-	const PRIORITY_LOW		= 1;
-	const PRIORITY_NORMAL	= 2;
-	const PRIORITY_HIGH		= 3;
-	const PRIORITY_HIGHEST	= 4;
-	const PRIORITY_URGENT	= 5;
-	
-	/**
-	 * An array that contains registered events
-	 *
-	 * @access		protected
-	 * @since		0.1
-	 */
-	protected $events = array();
-
-	/**
-	 * An array that contains registered listeners
-	 *
-	 * @access		protected
-	 * @since		0.2
-	 */
-	protected $listeners = array();
-
-	/**
-	 * Registers an event handler for an event
-	 *
-	 * @access		public
-	 * @param		string $eventName The registered event's name
-	 * @param		callable $callback A callback that will handle the event
-	 * @param		int $priority Priority of the event (0-5)
-	 * @param		bool $ignoreCancelled Handle the callback, even if the previous event handler cancelled it
-	 * @return		\DavidRockin\Podiya\Podiya Returns the class
-	 * @since		0.1
-	 */
-	public function registerEvent($eventName, callable $callback, $priority = self::PRIORITY_NORMAL, $ignoreCancelled = false) {
-		$this->events[$eventName][$priority][] = array(
-			"eventName"			=> $eventName,
-			"callback"			=> $callback,
-			"priority"			=> $priority,
-			"ignoreCancelled"	=> $ignoreCancelled,
-		);
-		return $this;
-	}
-
-	/**
-	 * Unregister an event handler for an event
-	 *
-	 * @access		public
-	 * @param		string $eventName The registered event's name
-	 * @return		\DavidRockin\Podiya\Podiya Returns the class
-	 * @since		0.1
-	 */
-	public function unregisterEvent($eventName, callable $callback) {
-		if ($this->eventRegistered($eventName)) {
-			foreach ($this->events[$eventName] as $priority => $events) {
-				$index = $this->arraySearchRecursive($callback, $this->events[$eventName][$priority], true);
-				if ($index !== false) {
-					unset($this->events[$eventName][$priority][$index]);
-				}
-			}
-		}
-
-		return $this;
-	}
-
-	/**
-	 * Remove a registered event
-	 *
-	 * @access		public
-	 * @param		string $eventName The registered event's name
-	 * @return		\DavidRockin\Podiya\Podiya Returns the class
-	 * @since		0.2
-	 */
-	public function removeEvent($eventName) {
-		if ($this->eventRegistered($eventName)) {
-			unset($this->events[$eventName]);
-		}
-
-		return $this;
-	}
-	
-	/**
-	 * Register a listener class
-	 *
-	 * When registering a listener, a call will be
-	 * made to the listener class to register its events
-	 *
-	 * @access		public
-	 * @param		\DavidRockin\Podiya\Listener $listener The listener class to be registered
-	 * @return		\DavidRockin\Podiya\Podiya Returns the class
-	 * @since		0.1
-	 */
-	public function registerListener(\DavidRockin\Podiya\Listener $listener) {
-		$this->listeners[] = $listener;
-		$listener->registerEvents($this);
-		return $this;
-	}
-
-	/**
-	 * Unregister a listener class
-	 *
-	 * When unregistering a listener, a call will be
-	 * made to the listener class to unregister its events
-	 *
-	 * @access		public
-	 * @param		\DavidRockin\Podiya\Listener $listener The listener class to be unregistered
-	 * @return		\DavidRockin\Podiya\Podiya Returns the class
-	 * @version		0.2
-	 */
-	public function unregisterListener(\DavidRockin\Podiya\Listener $listener) {
-		$listener->unregisterEvents($this);
-		$index = array_search($listener, $this->listeners, true);
-		if ($index !== false) {
-			unset($this->listeners[$index]);
-		}
-
-		return $this;
-	}
-	
-	/**
-	 * Call an event to be handled by an event handler
-	 *
-	 * The first argument passed to the registered event handler
-	 * is the event class that contains information such as result
-	 * of the previous event handler, along with information such as
-	 * event name and if it was cancelled or not. The event class can
-	 * also be used to share information to other similar event handlers.
-	 * The rest of the arguments are the optional arguments that was
-	 * passed when calling callEvent()
-	 *
-	 * @access		public
-	 * @param		string $eventName The targeted event's name
-	 * @param		mixed $variable,... The optional and unlimited args passed to the event
-	 * @return		mixed Result of the event
-	 * @since		0.1
-	 */
-	public function callEvent($eventName) {
-		if (!$this->eventRegistered($eventName))
-			return;
-
-		// Get the passed arguments
-		$args = func_get_args();
-		array_shift($args);
-		
-		// Setup the event
-		$event = new \DavidRockin\Podiya\Event($eventName, $this);
-		$result = null;
-
-		// Loop through the register events by priority
-		for ($i = 0; $i < 6; $i++) {
-			if (!isset($this->events[$eventName][$i]))
-				continue;
-
-			// Loop through the registered events of this priority
-			foreach ($this->events[$eventName][$i] as $registeredEvent) {
-				if ($event->isCancelled() && $registeredEvent['ignoreCancelled'] !== true)
-					continue;
-
-				$event->addPreviousResult($result);
-				$arguments = array_merge(array($event), $args);
-				$result = call_user_func_array($registeredEvent['callback'], $arguments);
-			}
-		}
-		
-		return $result;
-	}
-	
-	/**
-	 * Determine if the event has been registered
-	 *
-	 * @access		public
-	 * @param		string $eventName The targeted event's name
-	 * @return		bool Whether or not the event was registered
-	 * @since		0.1
-	 */
-	public function eventRegistered($eventName) {
-		return (isset($this->events[$eventName]) && !empty($this->events[$eventName]));
-	}
-	
-	/**
-	 * Determine if the listener has been registered
-	 *
-	 * @access		public
-	 * @param		\DavidRockin\Podiya\Listener $listener The listener
-	 * @return		bool Indicates if the listener was registered
-	 * @since		1.0
-	 */
-	public function listenerRegistered(\DavidRockin\Podiya\Listener $listener) {
-		return (array_search($listener, $this->listeners, true) !== false);
-	}
-	
-	/**
-	 * Recursive array search
-	 *
-	 * @access		public
-	 * @param		mixed $needle The value to be searched
-	 * @param		array $haystack The array
-	 * @return		mixed Returns the key for the needle if found, false if not found
-	 * @since		0.3
-	 */
-	private function arraySearchRecursive($needle, $haystack) {
-		foreach ($haystack as $key => $value) {
-			if ($needle === $value || (is_array($value) && $this->arraySearchRecursive($needle, $value) !== false))
-				return $key;
-		}
-
-		return false;
-	}
-
+    /**
+     * Called by a class that generates events to tell us what kind of events
+     * we will need to handle.
+     * 
+     * @access  public
+     * @param   mixed $events An array of event names, or a string of a single event name
+     * @return  \DavidRockin\Podiya\Podiya This object
+     * @since   2.0
+     */
+    public function publish($events)
+    {
+        if (!is_array($events)) {
+            $events = [$events];
+        }
+        
+        foreach ($events as $eventName) {
+            if ($this->isPublished($eventName)) {
+                continue;
+            }
+            
+            $this->events[$eventName] = [
+                self::PRIORITY_URGENT  => [],
+                self::PRIORITY_HIGHEST => [],
+                self::PRIORITY_HIGH    => [],
+                self::PRIORITY_NORMAL  => [],
+                self::PRIORITY_LOW     => [],
+                self::PRIORITY_LOWEST  => [],
+            ];
+        }
+        return $this;
+    }
+    
+    /**
+     * Stop handling certain events
+     * 
+     * @access  public
+     * @param   mixed $events An array of event names, or a string of a single event name
+     * @return  \DavidRockin\Podiya\Podiya This object
+     * @since   2.0
+     */
+    public function unpublish($events)
+    {
+        if (!is_array($events)) {
+            $events = [$events];
+        }
+        
+        foreach ($events as $eventName) {
+            if ($this->isPublished($eventName)) {
+                unset($this->events[$eventName]);
+            }
+        }
+        return $this;
+    }
+    
+    /**
+     * Determine if the event has been published
+     * 
+     * @access  public
+     * @param   string $eventName The desired event's name
+     * @return  bool Whether or not the event was published
+     * @since   2.0
+     */
+    public function isPublished($eventName)
+    {
+        return isset($this->events[$eventName]);
+    }
+    
+    /**
+     * Registers an event handler to a pre-published event
+     * 
+     * @access  public
+     * @param   string $eventName The published event's name
+     * @param   callable $callback A callback that will handle the event
+     * @param   int $priority Priority of the event (0-5)
+     * @param   bool $force Whether to ignore event cancellation
+     * @return  bool False if $eventName isn't published, true otherwise
+     * @since   2.0
+     */
+    public function subscribe($eventName, callable $callback, 
+                              $priority = self::PRIORITY_NORMAL,  $force = false)
+    {
+        if (!$this->isPublished($eventName)) {
+            return false;
+        }
+        $this->events[$eventName][$priority][] = [
+            'callback' => $callback,
+            'force'    => (bool) $force,
+        ];
+        return true;
+    }
+    
+    /**
+     * Subscribes multiple handlers at once
+     * 
+     * @access  public
+     * @param   array $arr The list of handlers
+     * @return  void
+     * @since   2.0
+     */
+    public function subscribe_array($arr)
+    {
+        foreach ($arr as $info) {
+            if (isset($info[2])) {
+                if (isset($info[3])) {
+                    echo $info;
+                    $this->subscribe($info[0], $info[1], $info[2], $info[3]);
+                } else {
+                    $this->subscribe($info[0], $info[1], $info[2]);
+                }
+            } else {
+                $this->subscribe($info[0], $info[1]);
+            }
+        }
+    }
+    
+    /**
+     * Detach a handler from its event
+     * 
+     * @access  public
+     * @param   string $eventName The event we want to unsubscribe from
+     * @param   callable $callback The callback we want to remove from the event
+     * @return  \DavidRockin\Podiya\Podiya This object
+     * @since   2.0
+     */
+    public function unsubscribe($eventName, callable $callback)
+    {
+        if ($this->isPublished($eventName)) {
+            foreach ($this->events[$eventName] as $priority => $events) {
+                $index = $this->array_search_deep($callback,
+                                                  $this->events[$eventName][$priority]);
+                if ($index !== false) {
+                    unset($this->events[$eventName][$priority][$index]);
+                }
+            }
+        }
+        return $this;
+    }
+    
+    /**
+     * Unsubscribes multiple handlers at once
+     * 
+     * @access  public
+     * @param   array $arr The list of handlers
+     * @return  void
+     * @since   2.0
+     */
+    public function unsubscribe_array($arr)
+    {
+        foreach ($arr as $info) {
+            $this->unsubscribe($info[0], $info[1]);
+        }
+    }
+    
+    /**
+     * Call an event to be handled by an event handler
+     *
+     * Note: The event object can be used to share information to other similar
+     * event handlers.
+     *
+     * @access  public
+     * @param   DavidRockin\Podiya\Event $event An event object
+     * @return  mixed Result of the event
+     * @since   2.0
+     */
+    public function fire(Event $event)
+    {
+        if (!$this->isPublished($event->getName())) {
+            return false;
+        }
+        
+        $result = null;
+        // Loop through the priorities
+        foreach ($this->events[$event->getName()] as $priority => $subscribers) {
+            // Loop through the subscribers of this priority
+            foreach ($subscribers as $subscriber) {
+                if ($event->isCancelled() && !$subscriber['force']) {
+                    continue;
+                }
+                $event->addPreviousResult($result);
+                $result = call_user_func($subscriber['callback'], $event);
+            }
+        }
+        return $result;
+    }
+    
+    /**
+     * Searches a multi-dimensional array for a value in any dimension.
+     * Named similar to the built-in PHP array_search() function.
+     *
+     * @access  private
+     * @param   mixed $needle The value to be searched for
+     * @param   array $haystack The array
+     * @return  mixed The top-level key containing the needle if found, false otherwise
+     * @since   2.0
+     */
+    private function array_search_deep($needle, $haystack)
+    {
+        foreach ($haystack as $key => $value) {
+            if ($needle === $value
+                || (is_array($value)
+                    && $this->array_search_deep($needle, $value) !== false
+                )
+            ) {
+                return $key;
+            }
+        }
+        return false;
+    }
 }
-

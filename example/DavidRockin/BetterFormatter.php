@@ -1,6 +1,9 @@
 <?php
 
 namespace DavidRockin\PodiyaExample;
+use \DavidRockin\Podiya\Podiya,
+    \DavidRockin\Podiya\Event,
+    \DavidRockin\Podiya\Listener;
 
 /**
  * An example Podiya listener
@@ -9,45 +12,47 @@ namespace DavidRockin\PodiyaExample;
  * previously called listeners. This example listener enhances
  * the group and date formatting
  *
- * @author		David Tkachuk
- * @package		PodiyaExample
- * @subpackage	Podiya
- * @version		1.0
+ * @author      David Tkachuk
+ * @package     Podiya
+ * @subpackage  PodiyaExample
+ * @version     2.0
  */
-class BetterFormatter implements \DavidRockin\Podiya\Listener {
+class BetterFormatter implements Listener
+{
+    private $podiya;
 
-	private $podiya;
-
-	public function registerEvents(\DavidRockin\Podiya\Podiya $podiya) {
-		$this->podiya = $podiya;
-		$podiya->registerEvent("format_group", [$this, "betterGroup"])
-				->registerEvent("format_date", [$this, "betterDate"]);
-	}
-	
-	public function unregisterEvents(\DavidRockin\Podiya\Podiya $podiya) {
-		$podiya->unregisterEvent("format_group", [$this, "betterGroup"])
-				->unregisterEvent("format_date", [$this, "betterDate"]);
-	}
-	
-	public function betterGroup(\DavidRockin\Podiya\Event $event, $groupName) {
-		switch (strtolower($groupName)) {
-			case "admin":
-			case "administrator":
-				$groupName = "<span style='color:#F00;'>Administrator</span>";
-				break;
-				
-			case "mod":
-			case "moderator":
-				$groupName = "<span style='color:#00A;'>Moderator</span>";
-				break;
-		}
-	
-		return $groupName;
-	}
-	
-	public function betterDate(\DavidRockin\Podiya\Event $event, $date) {
-		return date("F j, Y h:i:s A T", $date);
-	}
-	
+    public function __construct(Podiya $podiya) {
+        $this->podiya = $podiya;
+        $this->podiya->subscribe_array([
+            ['format_group', [$this, 'betterGroup']],
+            ['format_date',  [$this, 'betterDate']],
+        ]);
+    }
+    
+    public function destroy() {
+        $this->podiya->unsubscribe_array([
+            ['format_group', [$this, 'betterGroup']],
+            ['format_date',  [$this, 'betterDate']],
+        ]);
+    }
+    
+    public function betterGroup(Event $event) {
+        $groupName = strtolower($event->getData());
+        switch ($groupName) {
+            case 'admin':
+            case 'administrator':
+                $groupName = '<span style="color:#F00;">Administrator</span>';
+                break;
+                
+            case 'mod':
+            case 'moderator':
+                $groupName = '<span style="color:#00A;">Moderator</span>';
+                break;
+        }
+        return $groupName;
+    }
+    
+    public function betterDate(Event $event) {
+        return date('F j, Y h:i:s A T', $event->getData());
+    }
 }
-
