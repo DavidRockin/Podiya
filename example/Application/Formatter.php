@@ -23,14 +23,6 @@ class Formatter implements Listener
     public function __construct(Podiya $podiya) {
         $this->podiya = $podiya;
         
-        // events we will fire
-        $this->podiya->publish([
-            'format_username',
-            'format_group',
-            'format_date',
-            'format_message',
-        ]);
-        
         // events we will handle
         $this->podiya->subscribe_array([
             ['format_username', [$this, 'formatUsername']],

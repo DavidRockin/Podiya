@@ -10,8 +10,6 @@ include SRCDIR . '/Listener.php';
 
 // Setup Podiya
 $podiya = new \DavidRockin\Podiya\Podiya;
-// The only event we directly fire here
-$podiya->publish(['create_post']);
 
 // Include the listeners
 include BASEDIR . '/Application/Formatter.php';
