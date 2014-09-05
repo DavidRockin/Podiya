@@ -35,74 +35,7 @@ class Podiya
     private $timers = [];
 
     /**
-     * Called by a class that generates events to tell us what kind of events
-     * we will need to handle.
-     * 
-     * @access  public
-     * @param   mixed   $events An array of event names, or a string of a single event name
-     * @return  \DavidRockin\Podiya\Podiya  This object
-     * @since   2.0
-     */
-    public function publish($events)
-    {
-        if (!is_array($events)) {
-            $events = [$events];
-        }
-        
-        foreach ($events as $eventName) {
-            if ($this->isPublished($eventName)) {
-                continue;
-            }
-            
-            $this->events[$eventName] = [
-                self::PRIORITY_URGENT  => [],
-                self::PRIORITY_HIGHEST => [],
-                self::PRIORITY_HIGH    => [],
-                self::PRIORITY_NORMAL  => [],
-                self::PRIORITY_LOW     => [],
-                self::PRIORITY_LOWEST  => [],
-            ];
-        }
-        return $this;
-    }
-    
-    /**
-     * Stop handling certain events
-     * 
-     * @access  public
-     * @param   mixed   $events An array of event names, or a string of a single event name
-     * @return  \DavidRockin\Podiya\Podiya  This object
-     * @since   2.0
-     */
-    public function unpublish($events)
-    {
-        if (!is_array($events)) {
-            $events = [$events];
-        }
-        
-        foreach ($events as $eventName) {
-            if ($this->isPublished($eventName)) {
-                unset($this->events[$eventName]);
-            }
-        }
-        return $this;
-    }
-    
-    /**
-     * Determine if the event has been published
-     * 
-     * @access  public
-     * @param   string  $eventName  The desired event's name
-     * @return  bool    Whether or not the event was published
-     * @since   2.0
-     */
-    public function isPublished($eventName)
-    {
-        return isset($this->events[$eventName]);
-    }
-    
-    /**
-     * Registers an event handler to a pre-published event
+     * Registers an event handler to an event
      * 
      * @access  public
      * @param   string      $eventName  The published event's name
@@ -126,10 +59,19 @@ class Podiya
             return [$eventName, $callback];
         }
         
-        if (!$this->isPublished($eventName)) {
-            return false;
+        if (!$this->hasSubscribers($eventName)) {
+            $this->events[$eventName] = [
+                'subscribers'          => 0,
+                self::PRIORITY_URGENT  => [],
+                self::PRIORITY_HIGHEST => [],
+                self::PRIORITY_HIGH    => [],
+                self::PRIORITY_NORMAL  => [],
+                self::PRIORITY_LOW     => [],
+                self::PRIORITY_LOWEST  => [],
+            ];
         }
         
+        $this->events[$eventName]['subscribers']++;
         $this->events[$eventName][$priority][] = [
             'callback' => $callback,
             'force'    => (bool) $force,
@@ -171,14 +113,21 @@ class Podiya
      */
     public function unsubscribe($eventName, callable $callback)
     {
-        if ($this->isPublished($eventName)) {
+        if ($this->hasSubscribers($eventName)) {
+            // unsubscribing a normal event
             foreach ($this->events[$eventName] as $priority => $events) {
                 $index = $this->array_search_deep($callback, $this->events[$eventName][$priority]);
                 if ($index !== false) {
                     unset($this->events[$eventName][$priority][$index]);
+                    $this->events[$eventName]['subscribers']--;
                 }
             }
+            
+            if ($this->events[$eventName]['subscribers'] == 0) {
+                unset($this->events[$eventName]);
+            }
         } else if ($eventName{0} == '+') {
+            // unsubscribing a timer
             foreach ($this->timers as $priority => $events) {
                 $index = $this->array_search_deep(
                     ['interval' => (int) substr($eventName, 1), 'callback' => $callback],
@@ -207,6 +156,32 @@ class Podiya
     }
     
     /**
+     * Remove all subscribers from an event
+     * 
+     * @access  public
+     * @param   string  $eventName  The desired event's name
+     * @return  void
+     * @since   2.0
+     */
+    public function unsubscribeAll($eventName)
+    {
+        unset($this->events[$eventName]);
+    }
+    
+    /**
+     * Determine if the event has any subscribers
+     * 
+     * @access  public
+     * @param   string  $eventName  The desired event's name
+     * @return  bool    Whether or not the event was published
+     * @since   2.0
+     */
+    public function hasSubscribers($eventName)
+    {
+        return isset($this->events[$eventName]);
+    }
+    
+    /**
      * Call an event to be handled by an event handler
      *
      * Note: The event object can be used to share information to other similar
@@ -219,7 +194,7 @@ class Podiya
      */
     public function fire(Event $event)
     {
-        if (!$this->isPublished($event->getName())) {
+        if (!$this->hasSubscribers($event->getName())) {
             return false;
         }
         
