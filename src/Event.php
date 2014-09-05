@@ -144,7 +144,7 @@ class Event
      * @return  \DavidRockin\Podiya\Podiya Podiya object reference
      * @since   1.0
      */
-    public function &getPodiya() {
+    public function getPodiya() {
         return $this->podiya;
     }
     
