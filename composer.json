@@ -1,26 +1,29 @@
 {
 	"name": "davidrockin/podiya",
-	"description": "PHP event library",
-	"keywords": ["event","listener","plugin","hook"],
+	"description": "PHP event manager/connector library following the publish-subscribe pattern",
+	"keywords": ["event","listener","hook","publish-subscribe"],
 	"type": "library",
 	"homepage": "https://github.com/DavidRockin/Podiya",
 	"license": "LGPL v2.1",
-	"version": "1.0",
 	"authors": [
 		{
 			"name": "David Tkachuk",
 			"email": "david.tkachuk@hotmail.com",
 			"homepage": "http://davidrockin.com/",
 			"role": "Developer"
+		},
+		{
+			"name": "Garrett Whitehorn",
+			"homepage": "http://garrettw.net/",
+			"role": "Contributor"
 		}
 	],
 	"require": {
-		"php": ">=5.3.0"
+		"php": ">=5.4.0"
 	},
 	"autoload": {
 		"psr-4": {
-			"DavidRockin\\Podiya\\": "src",
-			"DavidRockin\\PodiyaExample\\": "example"
+			"DavidRockin\\Podiya\\": "src/",
 		}
 	}
 }
