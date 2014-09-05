@@ -200,11 +200,10 @@ class Podiya
         foreach ($this->events[$event->getName()] as $priority => $subscribers) {
             // Loop through the subscribers of this priority
             foreach ($subscribers as $subscriber) {
-                if ($event->isCancelled() && !$subscriber['force']) {
-                    continue;
+                if (!$event->isCancelled() || $subscriber['force']) {
+                    $event->addPreviousResult($result);
+                    $result = call_user_func($subscriber['callback'], $event);
                 }
-                $event->addPreviousResult($result);
-                $result = call_user_func($subscriber['callback'], $event);
             }
         }
         return $result;

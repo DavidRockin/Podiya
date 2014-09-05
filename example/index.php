@@ -1,12 +1,12 @@
 <?php
 
-define("BASEDIR", dirname(__FILE__));
-define("SRCDIR", dirname(BASEDIR) . "/src");
+define('BASEDIR', dirname(__FILE__));
+define('SRCDIR', dirname(BASEDIR) . '/src');
 
 // Include Podiya files
-include SRCDIR . "/Podiya.php";
-include SRCDIR . "/Event.php";
-include SRCDIR . "/Listener.php";
+include SRCDIR . '/Podiya.php';
+include SRCDIR . '/Event.php';
+include SRCDIR . '/Listener.php';
 
 // Setup Podiya
 $podiya = new \DavidRockin\Podiya\Podiya;
@@ -14,10 +14,10 @@ $podiya = new \DavidRockin\Podiya\Podiya;
 $podiya->publish(['create_post']);
 
 // Include the listeners
-include BASEDIR . "/Application/Formatter.php";
-include BASEDIR . "/DavidRockin/FancyExamplePlugin.php";
-include BASEDIR . "/DavidRockin/BetterFormatter.php";
-include BASEDIR . "/DavidRockin/Fancify.php";
+include BASEDIR . '/Application/Formatter.php';
+include BASEDIR . '/DavidRockin/FancyExamplePlugin.php';
+include BASEDIR . '/DavidRockin/BetterFormatter.php';
+include BASEDIR . '/DavidRockin/Fancify.php';
 
 // Initialize the default application listeners
 $defaultFormatter = new \DavidRockin\PodiyaExample\Formatter($podiya);
@@ -33,40 +33,40 @@ HTML;
 
 
 echo "With better formatting\n",
-    $podiya->fire(new \DavidRockin\Podiya\Event("create_post", [
+    $podiya->fire(new \DavidRockin\Podiya\Event('create_post', [
         'username' => 'David',
         'group'    => 'Administrator',
         'date'     => time(),
         'message'  => $sampleMessage,
-    ])), "\n", $podiya->fire(new \DavidRockin\Podiya\Event("create_post", [
-        'username' => "John Doe",
-        'group'    => "Moderator",
-        'date'     => strtotime("-3 days"),
+    ])), "\n", $podiya->fire(new \DavidRockin\Podiya\Event('create_post', [
+        'username' => 'John Doe',
+        'group'    => 'Moderator',
+        'date'     => strtotime('-3 days'),
         'message'  => $sampleMessage,
     ]));
 
-$podiya->unsubscribe("format_group", [$betterFormatter, "betterGroup"]);
-$podiya->unsubscribe("create_post", [$fancify, "fancyPost"]);
+$podiya->unsubscribe('format_group', [$betterFormatter, 'betterGroup']);
+$podiya->unsubscribe('create_post', [$fancify, 'fancyPost']);
 
 echo "\n\nWithout the better formatting on group and post\n",
-    $podiya->fire(new \DavidRockin\Podiya\Event("create_post", [
+    $podiya->fire(new \DavidRockin\Podiya\Event('create_post', [
         'username' => 'AppleJuice',
         'group'    => 'Member',
-        'date'     => strtotime("-3 weeks"),
+        'date'     => strtotime('-3 weeks'),
         'message'  => $sampleMessage,
-    ])), "\n", $podiya->fire(new \DavidRockin\Podiya\Event("create_post", [
+    ])), "\n", $podiya->fire(new \DavidRockin\Podiya\Event('create_post', [
         'username' => 'Anonymous',
         'group'    => 'Donator',
-        'date'     => strtotime("-3 years"),
+        'date'     => strtotime('-3 years'),
         'message'  => $sampleMessage,
     ]));
 
 $fancyExamplePlugin->destroy();
 
 echo "\n\nAfter destroying the fancyExamplePlugin listener\n",
-    $podiya->fire(new \DavidRockin\Podiya\Event("create_post", [
+    $podiya->fire(new \DavidRockin\Podiya\Event('create_post', [
         'username' => 'AppleJuice',
         'group'    => 'Member',
-        'date'     => strtotime("-3 weeks"),
+        'date'     => strtotime('-3 weeks'),
         'message'  => $sampleMessage,
     ]));
