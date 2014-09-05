@@ -105,7 +105,7 @@ class Podiya
      * @since   2.0
      */
     public function subscribe($eventName, callable $callback, 
-                              $priority = self::PRIORITY_NORMAL,  $force = false)
+                              $priority = self::PRIORITY_NORMAL, $force = false)
     {
         if (!$this->isPublished($eventName)) {
             return false;
@@ -130,7 +130,6 @@ class Podiya
         foreach ($arr as $info) {
             if (isset($info[2])) {
                 if (isset($info[3])) {
-                    echo $info;
                     $this->subscribe($info[0], $info[1], $info[2], $info[3]);
                 } else {
                     $this->subscribe($info[0], $info[1], $info[2]);
