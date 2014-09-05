@@ -215,6 +215,9 @@ class Podiya
     /**
      * Check all timers to see if any of them are ready to be called
      * 
+     * Typically this will be called like:
+     * $podiya->tick(new Event('timer'));
+     * 
      * @access  public
      * @param   DavidRockin\Podiya\Event    $event  An event object
      * @return  array   Result of the events
