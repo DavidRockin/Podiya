@@ -1,9 +1,9 @@
 <?php
 
 namespace DavidRockin\PodiyaExample;
-use \DavidRockin\Podiya\Podiya,
-    \DavidRockin\Podiya\Event,
-    \DavidRockin\Podiya\Listener;
+use DavidRockin\Podiya\Podiya,
+    DavidRockin\Podiya\Event,
+    DavidRockin\Podiya\Listener;
 
 /**
  * A default Podiya listener
