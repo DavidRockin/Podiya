@@ -128,15 +128,9 @@ class Podiya
     public function subscribe_array($arr)
     {
         foreach ($arr as $info) {
-            if (isset($info[2])) {
-                if (isset($info[3])) {
-                    $this->subscribe($info[0], $info[1], $info[2], $info[3]);
-                } else {
-                    $this->subscribe($info[0], $info[1], $info[2]);
-                }
-            } else {
-                $this->subscribe($info[0], $info[1]);
-            }
+            $this->subscribe($info[0], $info[1],
+                            (isset($info[2]) ? $info[2] : self::PRIORITY_NORMAL),
+                            (isset($info[3]) ? $info[3] : false));    
         }
     }
     

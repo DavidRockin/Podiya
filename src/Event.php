@@ -15,8 +15,6 @@ namespace DavidRockin\Podiya;
  */
 class Event
 {
-    const NULLGUARD = null;
-    
     /**
      * The name of the event
      *
@@ -156,13 +154,10 @@ class Event
      * @since   2.0
      */
     public function getData($key = null) {
-        if ($key === null) {
-            return $this->data;
+        $return = $this->data;
+        if ($key !== null) {
+            $return = (isset($return[$key]) ? $return[$key] : null);
         }
-        if (isset($this->data[$key])) {
-            return $this->data[$key];
-        } else {
-            return self::NULLGUARD;
-        }
+        return $return;
     }
 }
