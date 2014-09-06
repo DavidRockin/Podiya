@@ -87,7 +87,7 @@ class Podiya
         $pcount = count($this->pending);
         for ($i = 0; $i < $pcount; $i++) {
             if ($this->pending[$i]->getName() == $eventName) {
-                $result[] = $this->fire(array_splice($this->pending, $i, 1));
+                $result[] = $this->fire(array_splice($this->pending, $i, 1), $priority);
             }
         }
         return [$eventName, $callback, $result];
@@ -237,10 +237,11 @@ class Podiya
      *
      * @access  public
      * @param   DavidRockin\Podiya\Event    $event  An event object
+     * @param   mixed   $priority   The priority of the callback(s) desired
      * @return  mixed   Result of the event
      * @since   2.0
      */
-    public function fire(Event $event)
+    public function fire(Event $event, $priority = false)
     {
         if (!$this->hasSubscribers($event->getName())) {
             array_unshift($this->pending, $event);
@@ -248,10 +249,21 @@ class Podiya
         }
         
         $result = null;
-        // Loop through the priorities
-        foreach ($this->events[$event->getName()] as $priority => $subscribers) {
+        
+        if ($priority === false) {
+            // Loop through the priorities
+            foreach ($this->events[$event->getName()] as $priority => $subscribers) {
+                // Loop through the subscribers of this priority
+                foreach ($subscribers as $subscriber) {
+                    if (!$event->isCancelled() || $subscriber['force']) {
+                        $event->addPreviousResult($result);
+                        $result = call_user_func($subscriber['callback'], $event);
+                    }
+                }
+            }
+        } else {
             // Loop through the subscribers of this priority
-            foreach ($subscribers as $subscriber) {
+            foreach ($this->events[$event->getName()][$priority] as $subscriber) {
                 if (!$event->isCancelled() || $subscriber['force']) {
                     $event->addPreviousResult($result);
                     $result = call_user_func($subscriber['callback'], $event);
