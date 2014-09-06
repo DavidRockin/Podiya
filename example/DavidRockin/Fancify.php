@@ -20,14 +20,16 @@ use DavidRockin\Podiya\Podiya,
 class Fancify implements Listener
 {
     private $podiya;
+    private $events;
 
     public function __construct(Podiya $podiya) {
         $this->podiya = $podiya;
-        $this->podiya->subscribe('create_post', [$this, 'fancyPost']);
+        $this->events = [['create_post', [$this, 'fancyPost']]];
+        $this->podiya->subscribe_array($this->events);
     }
     
     public function destroy() {
-        $this->podiya->unsubscribe('create_post', [$this, 'fancyPost']);
+        $this->podiya->unsubscribe_array($this->events);
     }
     
     public function fancyPost(Event $event) {
