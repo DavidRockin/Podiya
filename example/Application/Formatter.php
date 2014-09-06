@@ -63,13 +63,13 @@ class Formatter implements Listener
     public function makePost(Event $event) {
         $result = '<div style="padding: 9px 16px;border:1px solid #EEE;margin-bottom:16px;">'
                  .'<strong>Posted by</strong> '
-                 .$this->podiya->fire(new Event('format_username', $event->getData('username')))
+                 .$this->podiya->publish(new Event('format_username', $this, $event->getData('username')))
                  .' ('
-                 .$this->podiya->fire(new Event('format_group', $event->getData('group')))
+                 .$this->podiya->publish(new Event('format_group', $this, $event->getData('group')))
                  .')<br /><strong>Posted Date</strong> '
-                 .$this->podiya->fire(new Event('format_date', $event->getData('date')))
+                 .$this->podiya->publish(new Event('format_date', $this, $event->getData('date')))
                  .'<br />'
-                 .$this->podiya->fire(new Event('format_message', $event->getData('message')))
+                 .$this->podiya->publish(new Event('format_message', $this, $event->getData('message')))
                  .'</div>';
         
         return $result;
