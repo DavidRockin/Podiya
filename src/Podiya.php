@@ -27,6 +27,11 @@ class Podiya
     private $events = [];
     
     /**
+     * An array holding any fired events to which no handler has subscribed yet
+     */
+    private $pending = [];
+    
+    /**
      * An array that contains callbacks and their time interval to be executed on
      * 
      * @access  private
@@ -56,7 +61,7 @@ class Podiya
                 'callback' => $callback,
                 'force'    => (bool) $force,
             ];
-            return [$eventName, $callback];
+            return [$eventName, $callback, null];
         }
         
         if (!$this->hasSubscribers($eventName)) {
@@ -76,7 +81,16 @@ class Podiya
             'callback' => $callback,
             'force'    => (bool) $force,
         ];
-        return [$eventName, $callback];
+        
+        // now fire any pending events for this subscriber
+        $result = null;
+        $pcount = count($this->pending);
+        for ($i = 0; $i < $pcount; $i++) {
+            if ($this->pending[$i]->getName() == $eventName) {
+                $result[] = $this->fire(array_splice($this->pending, $i, 1));
+            }
+        }
+        return [$eventName, $callback, $result];
     }
     
     /**
@@ -169,7 +183,20 @@ class Podiya
     }
     
     /**
-     * Determine if the event has any subscribers
+     * Get the array of subscribers by priority for a given event name
+     * 
+     * @access  public
+     * @param   string  $eventName  The desired event's name
+     * @return  mixed   Array of subscribers by priority if found, false otherwise
+     * @since   2.0
+     */
+    public function getSubscribers($eventName)
+    {
+        return ($this->hasSubscribers($eventName)) ? $this->events[$eventName] : false;
+    }
+    
+    /**
+     * Determine if the event name has any subscribers
      * 
      * @access  public
      * @param   string  $eventName  The desired event's name
@@ -179,6 +206,27 @@ class Podiya
     public function hasSubscribers($eventName)
     {
         return isset($this->events[$eventName]);
+    }
+    
+    /**
+     * Determine if the described event has been subscribed to or not by the callback
+     * 
+     * @access  public
+     * @param   string      $eventName  The desired event's name
+     * @param   callable    $callback   The specific callback we're looking for
+     * @return  mixed   Priority it's subscribed to if found, false otherwise; use ===
+     * @since   2.0
+     */
+    public function isSubscribed($eventName, callable $callback)
+    {
+        if ($eventName{0} == '+') {
+            // looking for a timer
+            return self::array_search_deep(
+                ['interval' => (int) substr($eventName, 1), 'callback' => $callback],
+                $this->timers);
+        }
+        
+        return self::array_search_deep($callback, $this->events[$eventName]);
     }
     
     /**
@@ -195,7 +243,8 @@ class Podiya
     public function fire(Event $event)
     {
         if (!$this->hasSubscribers($event->getName())) {
-            return false;
+            array_unshift($this->pending, $event);
+            return;
         }
         
         $result = null;
@@ -226,7 +275,7 @@ class Podiya
     public function tick(Event $event)
     {
         $result = [];
-        foreach($this->timers as $priority => $subscribers) {
+        foreach ($this->timers as $priority => $subscribers) {
             foreach ($subscribers as $subscriber) {
                 if (self::currentTimeMillis() - $subscriber['lastcalltime']
                     > $subscriber['interval']
@@ -244,13 +293,13 @@ class Podiya
      * Searches a multi-dimensional array for a value in any dimension.
      * Named similar to the built-in PHP array_search() function.
      *
-     * @access  private
+     * @access  public
      * @param   mixed   $needle     The value to be searched for
      * @param   array   $haystack   The array
      * @return  mixed   The top-level key containing the needle if found, false otherwise
      * @since   2.0
      */
-    private function array_search_deep($needle, array $haystack)
+    public static function array_search_deep($needle, array $haystack)
     {
         if (is_array($needle) && count(array_diff_assoc($needle, $haystack)) == 0) {
             return true;
@@ -259,7 +308,7 @@ class Podiya
         foreach ($haystack as $key => $value) {
             if ($needle === $value
                 || (is_array($value)
-                    && $this->array_search_deep($needle, $value) !== false
+                    && self::array_search_deep($needle, $value) !== false
                 )
             ) {
                 return $key;
