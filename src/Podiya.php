@@ -27,7 +27,7 @@ class Podiya
     private $events = [];
     
     /**
-     * An array holding any fired events to which no handler has subscribed yet
+     * An array holding any published events to which no handler has subscribed yet
      */
     private $pending = [];
     
@@ -82,12 +82,12 @@ class Podiya
             'force'    => (bool) $force,
         ];
         
-        // now fire any pending events for this subscriber
+        // now re-publish any pending events for this subscriber
         $result = null;
         $pcount = count($this->pending);
         for ($i = 0; $i < $pcount; $i++) {
             if ($this->pending[$i]->getName() == $eventName) {
-                $result[] = $this->fire(array_splice($this->pending, $i, 1), $priority);
+                $result[] = $this->publish(array_splice($this->pending, $i, 1), $priority);
             }
         }
         return [$eventName, $callback, $result];
@@ -129,11 +129,13 @@ class Podiya
     {
         if ($this->hasSubscribers($eventName)) {
             // unsubscribing a normal event
-            foreach ($this->events[$eventName] as $priority => $events) {
-                $index = $this->array_search_deep($callback, $this->events[$eventName][$priority]);
-                if ($index !== false) {
-                    unset($this->events[$eventName][$priority][$index]);
-                    $this->events[$eventName]['subscribers']--;
+            foreach ($this->events[$eventName] as $priority => $subscribers) {
+                if ($priority != 'subscribers') {
+                    $index = $this->array_search_deep($callback, $this->events[$eventName][$priority]);
+                    if ($index !== false) {
+                        unset($this->events[$eventName][$priority][$index]);
+                        $this->events[$eventName]['subscribers']--;
+                    }
                 }
             }
             
@@ -142,7 +144,7 @@ class Podiya
             }
         } else if ($eventName{0} == '+') {
             // unsubscribing a timer
-            foreach ($this->timers as $priority => $events) {
+            foreach ($this->timers as $priority => $subscribers) {
                 $index = $this->array_search_deep(
                     ['interval' => (int) substr($eventName, 1), 'callback' => $callback],
                     $this->timers[$priority]);
@@ -230,18 +232,18 @@ class Podiya
     }
     
     /**
-     * Call an event to be handled by an event handler
+     * Let any relevant subscribers know an event needs to be handled
      *
      * Note: The event object can be used to share information to other similar
      * event handlers.
      *
      * @access  public
      * @param   DavidRockin\Podiya\Event    $event  An event object
-     * @param   mixed   $priority   The priority of the callback(s) desired
+     * @param   mixed   $priority   Notify only subscribers of a certain priority level
      * @return  mixed   Result of the event
      * @since   2.0
      */
-    public function fire(Event $event, $priority = false)
+    public function publish(Event $event, $priority = false)
     {
         if (!$this->hasSubscribers($event->getName())) {
             array_unshift($this->pending, $event);
@@ -251,18 +253,20 @@ class Podiya
         $result = null;
         
         if ($priority === false) {
-            // Loop through the priorities
-            foreach ($this->events[$event->getName()] as $priority => $subscribers) {
-                // Loop through the subscribers of this priority
-                foreach ($subscribers as $subscriber) {
-                    if (!$event->isCancelled() || $subscriber['force']) {
-                        $event->addPreviousResult($result);
-                        $result = call_user_func($subscriber['callback'], $event);
+            // Loop through all the priority levels
+            foreach ($this->events[$event->getName()] as $plevel => $subscribers) {
+                if ($plevel != 'subscribers') {
+                    // Loop through the subscribers of this priority level
+                    foreach ($subscribers as $subscriber) {
+                        if (!$event->isCancelled() || $subscriber['force']) {
+                            $event->addPreviousResult($result);
+                            $result = call_user_func($subscriber['callback'], $event);
+                        }
                     }
                 }
             }
         } else {
-            // Loop through the subscribers of this priority
+            // Loop through the subscribers of the given priority
             foreach ($this->events[$event->getName()][$priority] as $subscriber) {
                 if (!$event->isCancelled() || $subscriber['force']) {
                     $event->addPreviousResult($result);
@@ -313,7 +317,10 @@ class Podiya
      */
     public static function array_search_deep($needle, array $haystack)
     {
-        if (is_array($needle) && count(array_diff_assoc($needle, $haystack)) == 0) {
+        if (is_array($needle)
+            && !is_callable($needle)
+            && count(array_diff_assoc($needle, $haystack)) == 0
+        ) {
             return true;
         }
         

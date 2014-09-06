@@ -1,7 +1,7 @@
 {
 	"name": "davidrockin/podiya",
-	"description": "PHP event manager/connector library following the publish-subscribe pattern",
-	"keywords": ["event","listener","hook","publish-subscribe"],
+	"description": "PHP event library following Mediator pattern using Observer implementation",
+	"keywords": ["event","listener","hook","mediator","publish-subscribe","observer"],
 	"type": "library",
 	"homepage": "https://github.com/DavidRockin/Podiya",
 	"license": "LGPL v2.1",
