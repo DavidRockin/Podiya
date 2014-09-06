@@ -27,10 +27,48 @@ class Podiya
     private $events = [];
     
     /**
-     * An array holding any published events to which no handler has subscribed yet
+     * An array holding any published events to which no handler has yet subscribed
+     * 
+     * @access  private
+     * @since   2.0
      */
     private $pending = [];
+    
+    /**
+     * Whether we should put published events for which there are no subscribers
+     * onto the $pending list.
+     * 
+     * @access  private
+     * @since   2.0
+     */
+    private $holdUnheardEvents = false;
 
+    /**
+     * Determine if events may be held if there are no subscribers for them
+     *
+     * @access  public
+     * @return  bool    Return true if events may be held, otherwise false
+     * @since   2.0
+     */
+    public function willHoldUnheardEvents() {
+        return $this->holdUnheardEvents;
+    }
+    
+    /**
+     * Specifies if the event should be held if there are no subscribers for it
+     *
+     * @access  public
+     * @param   bool    $hold   Hold the event in the pending list or not
+     * @return  bool    Returns the new value we've set it to
+     * @since   2.0
+     */
+    public function holdUnheardEvents($hold = true) {
+        if (!$hold) {
+            $this->pending = [];
+        }
+        return ($this->holdUnheardEvents = (bool) $hold);
+    }
+    
     /**
      * Registers an event handler to an event
      * 
@@ -81,7 +119,7 @@ class Podiya
         
         // now re-publish any pending events for this subscriber
         $result = null;
-        $pcount = count($this->pending);
+        $pcount = count($this->pending); // will be 0 if functionality is disabled
         for ($i = 0; $i < $pcount; $i++) {
             if ($this->pending[$i]->getName() == $eventName) {
                 $result[] = $this->publish(array_splice($this->pending, $i, 1), $priority);
@@ -226,7 +264,9 @@ class Podiya
      */
     public function publish(Event $event, $priority = false)
     {
-        if (!($event->getName() == 'timer' || $this->hasSubscribers($event->getName()))) {
+        if ($this->holdUnheardEvents
+            && !($event->getName() == 'timer' || $this->hasSubscribers($event->getName()))
+        ) {
             array_unshift($this->pending, $event);
             return;
         }
