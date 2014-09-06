@@ -31,12 +31,12 @@ HTML;
 
 
 echo "With better formatting\n",
-    $podiya->fire(new \DavidRockin\Podiya\Event('create_post', [
+    $podiya->fire(new \DavidRockin\Podiya\Event('create_post', null, [
         'username' => 'David',
         'group'    => 'Administrator',
         'date'     => time(),
         'message'  => $sampleMessage,
-    ])), "\n", $podiya->fire(new \DavidRockin\Podiya\Event('create_post', [
+    ])), "\n", $podiya->fire(new \DavidRockin\Podiya\Event('create_post', null, [
         'username' => 'John Doe',
         'group'    => 'Moderator',
         'date'     => strtotime('-3 days'),
@@ -47,12 +47,12 @@ $podiya->unsubscribe('format_group', [$betterFormatter, 'betterGroup']);
 $podiya->unsubscribe('create_post', [$fancify, 'fancyPost']);
 
 echo "\n\nWithout the better formatting on group and post\n",
-    $podiya->fire(new \DavidRockin\Podiya\Event('create_post', [
+    $podiya->fire(new \DavidRockin\Podiya\Event('create_post', null, [
         'username' => 'AppleJuice',
         'group'    => 'Member',
         'date'     => strtotime('-3 weeks'),
         'message'  => $sampleMessage,
-    ])), "\n", $podiya->fire(new \DavidRockin\Podiya\Event('create_post', [
+    ])), "\n", $podiya->fire(new \DavidRockin\Podiya\Event('create_post', null, [
         'username' => 'Anonymous',
         'group'    => 'Donator',
         'date'     => strtotime('-3 years'),
@@ -62,7 +62,7 @@ echo "\n\nWithout the better formatting on group and post\n",
 $fancyExamplePlugin->destroy();
 
 echo "\n\nAfter destroying the fancyExamplePlugin listener\n",
-    $podiya->fire(new \DavidRockin\Podiya\Event('create_post', [
+    $podiya->fire(new \DavidRockin\Podiya\Event('create_post', null, [
         'username' => 'AppleJuice',
         'group'    => 'Member',
         'date'     => strtotime('-3 weeks'),
