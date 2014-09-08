@@ -112,21 +112,20 @@ class Podiya
         $this->events[$eventName][$priority][] = $newsub;
         $this->events[$eventName]['subscribers']++;
         
-        // there will never be pending timer events, so go ahead and return
-        if ($interval) {
-            return [$eventName . ':' . $interval, $callback, $result];
-        }
-        
-        // now re-publish any pending events for this subscriber
         $result = null;
-        $pcount = count($this->pending); // will be 0 if functionality is disabled
-        for ($i = 0; $i < $pcount; $i++) {
-            if ($this->pending[$i]->getName() == $eventName) {
-                $result[] = $this->publish(array_splice($this->pending, $i, 1), $priority);
+        
+        // there will never be pending timer events, so go ahead and return
+        if (!$interval) {
+            // now re-publish any pending events for this subscriber
+            $pcount = count($this->pending); // will be 0 if functionality is disabled
+            for ($i = 0; $i < $pcount; $i++) {
+                if ($this->pending[$i]->getName() == $eventName) {
+                    $result[] = $this->publish(array_splice($this->pending, $i, 1), $priority);
+                }
             }
         }
         
-        return [$eventName, $callback, $result];
+        return $result;
     }
     
     /**
@@ -134,16 +133,18 @@ class Podiya
      * 
      * @access  public
      * @param   array   $arr    The list of handlers
-     * @return  void
+     * @return  array   Results from any pending events fired
      * @since   2.0
      */
     public function subscribe_array(array $arr)
     {
+        $results = [];
         foreach ($arr as $info) {
-            $this->subscribe($info[0], $info[1],
-                            (isset($info[2]) ? $info[2] : self::PRIORITY_NORMAL),
-                            (isset($info[3]) ? $info[3] : false));    
+            $results[$info[0]] = $this->subscribe($info[0], $info[1],
+                (isset($info[2]) ? $info[2] : self::PRIORITY_NORMAL),
+                (isset($info[3]) ? $info[3] : false));
         }
+        return $results;
     }
     
     /**
@@ -192,6 +193,7 @@ class Podiya
         foreach ($arr as $info) {
             $this->unsubscribe($info[0], $info[1]);
         }
+        return $this;
     }
     
     /**
@@ -205,6 +207,7 @@ class Podiya
     public function unsubscribeAll($eventName)
     {
         unset($this->events[$eventName]);
+        return $this;
     }
     
     /**
