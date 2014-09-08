@@ -82,9 +82,7 @@ class Event
         $this->data   = $data;
         $this->podiya = $podiya;
     }
-    
-    // Getters {
-    
+        
     /**
      * Returns the event's name
      *
@@ -157,20 +155,6 @@ class Event
     }
     
     /**
-     * Determine if the event is cancelled or not
-     *
-     * @access  public
-     * @return  bool    Return true if event cancelled, otherwise false
-     * @since   0.3
-     */
-    public function isCancelled() {
-        return $this->cancelled;
-    }
-    
-    // }
-    // Setters {
-    
-    /**
      * Adds the previous event handler's result
      *
      * @access  public
@@ -194,5 +178,14 @@ class Event
         return ($this->cancelled = (bool) $cancel);
     }
     
-    // }
+    /**
+     * Determine if the event is cancelled or not
+     *
+     * @access  public
+     * @return  bool    Return true if event cancelled, otherwise false
+     * @since   0.3
+     */
+    public function isCancelled() {
+        return $this->cancelled;
+    }
 }
