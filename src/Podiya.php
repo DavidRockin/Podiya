@@ -27,18 +27,48 @@ class Podiya
     private $events = [];
     
     /**
-     * An array holding any published events to which no handler has subscribed yet
-     */
-    private $pending = [];
-    
-    /**
-     * An array that contains callbacks and their time interval to be executed on
+     * An array holding any published events to which no handler has yet subscribed
      * 
      * @access  private
      * @since   2.0
      */
-    private $timers = [];
+    private $pending = [];
+    
+    /**
+     * Whether we should put published events for which there are no subscribers
+     * onto the $pending list.
+     * 
+     * @access  private
+     * @since   2.0
+     */
+    private $holdUnheardEvents = false;
 
+    /**
+     * Determine if events may be held if there are no subscribers for them
+     *
+     * @access  public
+     * @return  bool    Return true if events may be held, otherwise false
+     * @since   2.0
+     */
+    public function willHoldUnheardEvents() {
+        return $this->holdUnheardEvents;
+    }
+    
+    /**
+     * Specifies if the event should be held if there are no subscribers for it
+     *
+     * @access  public
+     * @param   bool    $hold   Hold the event in the pending list or not
+     * @return  bool    Returns the new value we've set it to
+     * @since   2.0
+     */
+    public function holdUnheardEvents($hold = true) {
+        if (!$hold) {
+            $this->pending = [];
+        }
+        return ($this->holdUnheardEvents = (bool) $hold);
+    }
+    
     /**
      * Registers an event handler to an event
      * 
@@ -53,15 +83,10 @@ class Podiya
     public function subscribe($eventName, callable $callback, 
                               $priority = self::PRIORITY_NORMAL, $force = false)
     {
-        if ($eventName{0} == '+') {
-            // this is a timer!
-            $this->timers[$priority][] = [
-                'interval' => (int) substr($eventName, 1), // milliseconds
-                'lastcalltime' => self::currentTimeMillis(), // milliseconds
-                'callback' => $callback,
-                'force'    => (bool) $force,
-            ];
-            return [$eventName, $callback, null];
+        $interval = false;
+        if (strpos($eventName, 'timer:') === 0) {
+            $interval = (int) substr($eventName, 6);
+            $eventName = 'timer';
         }
         
         if (!$this->hasSubscribers($eventName)) {
@@ -76,20 +101,31 @@ class Podiya
             ];
         }
         
-        $this->events[$eventName]['subscribers']++;
-        $this->events[$eventName][$priority][] = [
+        $newsub = [
             'callback' => $callback,
             'force'    => (bool) $force,
         ];
+        if ($interval) {
+            $newsub['interval'] = $interval; // milliseconds
+            $newsub['lastcalltime'] = self::currentTimeMillis();
+        }
+        $this->events[$eventName][$priority][] = $newsub;
+        $this->events[$eventName]['subscribers']++;
+        
+        // there will never be pending timer events, so go ahead and return
+        if ($interval) {
+            return [$eventName . ':' . $interval, $callback, $result];
+        }
         
         // now re-publish any pending events for this subscriber
         $result = null;
-        $pcount = count($this->pending);
+        $pcount = count($this->pending); // will be 0 if functionality is disabled
         for ($i = 0; $i < $pcount; $i++) {
             if ($this->pending[$i]->getName() == $eventName) {
                 $result[] = $this->publish(array_splice($this->pending, $i, 1), $priority);
             }
         }
+        
         return [$eventName, $callback, $result];
     }
     
@@ -121,32 +157,25 @@ class Podiya
      */
     public function unsubscribe($eventName, callable $callback)
     {
-        if ($this->hasSubscribers($eventName)) {
-            // unsubscribing a normal event
-            foreach ($this->events[$eventName] as $priority => $subscribers) {
-                if ($priority != 'subscribers') {
-                    $index = $this->array_search_deep($callback, $this->events[$eventName][$priority]);
-                    if ($index !== false) {
-                        unset($this->events[$eventName][$priority][$index]);
-                        $this->events[$eventName]['subscribers']--;
-                    }
+        if (strpos($eventName, 'timer:') === 0) {
+            $callback = ['interval' => (int) substr($eventName, 6), 'callback' => $callback];
+            $eventName = 'timer';
+        }
+        
+        if (($priority = $this->isSubscribed($eventName, $callback)) !== false) {
+            foreach ($this->events[$eventName][$priority] as $subscribers) {
+                $key = self::array_search_deep($callback, $this->events[$eventName][$priority]);
+                if ($key !== false) {
+                    unset($this->events[$eventName][$priority][$key]);
+                    $this->events[$eventName]['subscribers']--;
                 }
             }
             
             if ($this->events[$eventName]['subscribers'] == 0) {
                 unset($this->events[$eventName]);
             }
-        } else if ($eventName{0} == '+') {
-            // unsubscribing a timer
-            foreach ($this->timers as $priority => $subscribers) {
-                $index = $this->array_search_deep(
-                    ['interval' => (int) substr($eventName, 1), 'callback' => $callback],
-                    $this->timers[$priority]);
-                if ($index !== false) {
-                    unset($this->timers[$priority][$index]);
-                }
-            }
         }
+        
         return $this;
     }
     
@@ -215,14 +244,10 @@ class Podiya
      */
     public function isSubscribed($eventName, callable $callback)
     {
-        if ($eventName{0} == '+') {
-            // looking for a timer
-            return self::array_search_deep(
-                ['interval' => (int) substr($eventName, 1), 'callback' => $callback],
-                $this->timers);
+        if ($this->hasSubscribers($eventName)) {
+            return self::array_search_deep($callback, $this->events[$eventName]);
         }
-        
-        return self::array_search_deep($callback, $this->events[$eventName]);
+        return false;
     }
     
     /**
@@ -239,7 +264,9 @@ class Podiya
      */
     public function publish(Event $event, $priority = false)
     {
-        if (!$this->hasSubscribers($event->getName())) {
+        if ($this->holdUnheardEvents
+            && !($event->getName() == 'timer' || $this->hasSubscribers($event->getName()))
+        ) {
             array_unshift($this->pending, $event);
             return;
         }
@@ -248,11 +275,21 @@ class Podiya
         
         if ($priority === false) {
             // Loop through all the priority levels
-            foreach ($this->events[$event->getName()] as $plevel => $subscribers) {
+            foreach ($this->events[$event->getName()] as $plevel => &$subscribers) {
                 if ($plevel != 'subscribers') {
                     // Loop through the subscribers of this priority level
-                    foreach ($subscribers as $subscriber) {
+                    foreach ($subscribers as &$subscriber) {
                         if (!$event->isCancelled() || $subscriber['force']) {
+                            // check for timer & handle it
+                            if (isset($subscriber['interval'])) {
+                                if (self::currentTimeMillis() - $subscriber['lastcalltime']
+                                    > $subscriber['interval']
+                                ) {
+                                    $subscriber['lastcalltime'] = self::currentTimeMillis();
+                                } else {
+                                    continue;
+                                }
+                            }
                             $event->addPreviousResult($result);
                             $result = call_user_func($subscriber['callback'], $event);
                         }
@@ -261,38 +298,20 @@ class Podiya
             }
         } else {
             // Loop through the subscribers of the given priority
-            foreach ($this->events[$event->getName()][$priority] as $subscriber) {
+            foreach ($this->events[$event->getName()][$priority] as &$subscriber) {
                 if (!$event->isCancelled() || $subscriber['force']) {
+                    // check for timer & handle it
+                    if (isset($subscriber['interval'])) {
+                        if (self::currentTimeMillis() - $subscriber['lastcalltime']
+                            > $subscriber['interval']
+                        ) {
+                            $subscriber['lastcalltime'] = self::currentTimeMillis();
+                        } else {
+                            continue;
+                        }
+                    }
                     $event->addPreviousResult($result);
                     $result = call_user_func($subscriber['callback'], $event);
-                }
-            }
-        }
-        return $result;
-    }
-    
-    /**
-     * Check all timers to see if any of them are ready to be called
-     * 
-     * Typically this will be called like:
-     * $podiya->tick(new Event('timer'));
-     * 
-     * @access  public
-     * @param   DavidRockin\Podiya\Event    $event  An event object
-     * @return  array   Result of the events
-     * @since   2.0
-     */
-    public function tick(Event $event)
-    {
-        $result = [];
-        foreach ($this->timers as $priority => $subscribers) {
-            foreach ($subscribers as $subscriber) {
-                if (self::currentTimeMillis() - $subscriber['lastcalltime']
-                    > $subscriber['interval']
-                    && (!$event->isCancelled() || $subscriber['force'])
-                ) {
-                    $event->addPreviousResult($result);
-                    $result[] = call_user_func($subscriber['callback'], $event);
                 }
             }
         }

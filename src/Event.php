@@ -187,6 +187,7 @@ class Event
      *
      * @access  public
      * @param   bool    $cancelled  Cancel the event or not
+     * @return  bool    Returns the new value we've set it to
      * @since   0.3
      */
     public function cancel($cancel = true) {

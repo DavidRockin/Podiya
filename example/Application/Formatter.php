@@ -19,29 +19,25 @@ use DavidRockin\Podiya\Podiya,
 class Formatter implements Listener
 {
     private $podiya;
+    private $events;
     
     public function __construct(Podiya $podiya) {
         $this->podiya = $podiya;
         
         // events we will handle
-        $this->podiya->subscribe_array([
+        $this->events = [
             ['format_username', [$this, 'formatUsername']],
             ['format_group',    [$this, 'formatGroup']],
             ['format_date',     [$this, 'formatDate']],
             ['format_message',  [$this, 'formatMessage']],
             ['create_post',     [$this, 'makePost']],
-        ]);
+        ];
+        $this->podiya->subscribe_array($this->events);
     }
     
     public function destroy()
     {
-        $this->podiya->unsubscribe_array([
-            ['format_username', [$this, 'formatUsername']],
-            ['format_group',    [$this, 'formatGroup']],
-            ['format_date',     [$this, 'formatDate']],
-            ['format_message',  [$this, 'formatMessage']],
-            ['create_post',     [$this, 'makePost']],
-        ]);
+        $this->podiya->unsubscribe_array($this->events);
     }
     
     public function formatUsername(Event $event) {
