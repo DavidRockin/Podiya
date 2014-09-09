@@ -293,7 +293,7 @@ class Podiya
                     // Loop through the subscribers of this priority level
                     foreach ($subscribers as &$subscriber) {
                         if (!$event->isCancelled() || $subscriber['force']) {
-							$result = $this->handleSubscriber($event, $subscriber);
+							$result = $this->fire($event, $subscriber);
                         }
                     }
                 }
@@ -303,7 +303,7 @@ class Podiya
 				// Loop through the subscribers of the given priority
 				foreach ($events[$priority] as &$subscriber) {
 					if (!$event->isCancelled() || $subscriber['force']) {
-						$result = $this->handleSubscriber($event, $subscriber);
+						$result = $this->fire($event, $subscriber);
 					}
 				}
 			}
