@@ -293,7 +293,7 @@ class Podiya
                     // Loop through the subscribers of this priority level
                     foreach ($subscribers as &$subscriber) {
                         if (!$event->isCancelled() || $subscriber['force']) {
-							$result = $this->fire($event, $subscriber);
+							$result = $this->fire($event, $subscriber, $result);
                         }
                     }
                 }
@@ -303,7 +303,7 @@ class Podiya
 				// Loop through the subscribers of the given priority
 				foreach ($events[$priority] as &$subscriber) {
 					if (!$event->isCancelled() || $subscriber['force']) {
-						$result = $this->fire($event, $subscriber);
+						$result = $this->fire($event, $subscriber, $result);
 					}
 				}
 			}
@@ -361,10 +361,11 @@ class Podiya
 	 * @access  private
 	 * @param   \DavidRockin\Podiya\Event   $event  The Event object to be fired
 	 * @param   array   $subscriber The subscriber that will be handling the event
+	 * @param   mixed   $result The previous result to add to the Event object, if any
 	 * @return  mixed   The return value of the called subscriber, if any
 	 * @since   2.0
 	 */
-	private function fire(Event &$event, array &$subscriber) {
+	private function fire(Event &$event, array &$subscriber, $result = null) {
 		// check if the subscriber is a timer
 		if (isset($subscriber['interval'])) {
 			if (self::currentTimeMillis() > $subscriber['nextcalltime']) {
