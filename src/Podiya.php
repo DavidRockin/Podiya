@@ -11,12 +11,12 @@ namespace DavidRockin\Podiya;
  */
 class Podiya
 {
-    const PRIORITY_LOWEST	= 0;
-    const PRIORITY_LOW		= 1;
-    const PRIORITY_NORMAL	= 2;
-    const PRIORITY_HIGH		= 3;
-    const PRIORITY_HIGHEST	= 4;
-    const PRIORITY_URGENT	= 5;
+    const PRIORITY_URGENT	= 0;
+    const PRIORITY_HIGHEST	= 1;
+    const PRIORITY_HIGH		= 2;
+    const PRIORITY_NORMAL	= 3;
+    const PRIORITY_LOW		= 4;
+    const PRIORITY_LOWEST	= 5;
     
     /**
      * An array that contains registered events and their handlers by priority
@@ -77,7 +77,7 @@ class Podiya
      * @param   callable    $callback   A callback that will handle the event
      * @param   int         $priority   Priority of the event (0-5)
      * @param   bool        $force      Whether to ignore event cancellation
-     * @return  mixed   False if $eventName isn't published, array of first two params otherwise
+     * @return  mixed       False if $eventName isn't published, array of first two params otherwise
      * @since   2.0
      */
     public function subscribe($eventName, callable $callback, 
