@@ -108,7 +108,7 @@ class Podiya
         ];
         if ($interval) {
             $event['interval'] = $interval; // milliseconds
-            $event['lastcalltime'] = self::currentTimeMillis();
+            $event['nextcalltime'] = self::currentTimeMillis() + $interval;
         }
         $this->events[$eventName][$priority][] = $event;
         $this->events[$eventName]['subscribers']++;
@@ -367,8 +367,8 @@ class Podiya
 	private function fire(Event &$event, array &$subscriber) {
 		// check if the subscriber is a timer
 		if (isset($subscriber['interval'])) {
-			if (self::currentTimeMillis() - $subscriber['lastcalltime'] > $subscriber['interval']) {
-				$subscriber['lastcalltime'] = self::currentTimeMillis();
+			if (self::currentTimeMillis() > $subscriber['nextcalltime']) {
+				$subscriber['nextcalltime'] += $subscriber['interval'];
 			} else {
 				return;
 			}
