@@ -76,7 +76,8 @@ class Event
      * @param   \DavidRockin\Podiya\Podiya  $podiya A reference back to a Podiya instance (optional)
      * @since   0.3
      */
-    public function __construct($name, $caller = null, $data = null, Podiya $podiya = null) {
+    public function __construct($name, $caller = null, $data = null, Podiya $podiya = null)
+    {
         $this->name	  = $name;
         $this->caller = $caller;
         $this->data   = $data;
@@ -90,7 +91,8 @@ class Event
      * @return  string  Event name
      * @since   2.0
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->name;
     }
     
@@ -101,7 +103,8 @@ class Event
      * @return  string  Event name
      * @since   2.0
      */
-    public function getCaller() {
+    public function getCaller()
+    {
         return $this->caller;
     }
     
@@ -112,7 +115,8 @@ class Event
      * @return  mixed   The entire data array if no params, otherwise a specific key
      * @since   2.0
      */
-    public function getData($key = null) {
+    public function getData($key = null)
+    {
         if ($key === null) {
             return $this->data;
         }
@@ -128,7 +132,8 @@ class Event
      * @return  \DavidRockin\Podiya\Podiya  Podiya object reference
      * @since   1.0
      */
-    public function getPodiya() {
+    public function getPodiya()
+    {
         return $this->podiya;
     }
     
@@ -139,7 +144,8 @@ class Event
      * @return  array   Array of previous event handlers results
      * @since   1.0
      */
-    public function getPreviousResults() {
+    public function getPreviousResults()
+    {
         return $this->previousResults;
     }
     
@@ -150,8 +156,10 @@ class Event
      * @return  mixed   Result of previous event handler
      * @since   1.0
      */
-    public function getPreviousResult() {
-        return $this->previousResults[count($this->previousResults)-1];
+    public function getPreviousResult()
+    {
+		$key = count($this->previousResults) - 1;
+        return $this->previousResults[$key];
     }
     
     /**
@@ -161,7 +169,8 @@ class Event
      * @param   mixed   $result The result of the previous event handler
      * @since   1.0
      */
-    public function addPreviousResult($result) {
+    public function addPreviousResult($result)
+    {
         $this->previousResults[] = $result;
         return $result;
     }
@@ -174,7 +183,8 @@ class Event
      * @return  bool    Returns the new value we've set it to
      * @since   0.3
      */
-    public function cancel($cancel = true) {
+    public function cancel($cancel = true)
+    {
         return ($this->cancelled = (bool) $cancel);
     }
     
@@ -185,7 +195,8 @@ class Event
      * @return  bool    Return true if event cancelled, otherwise false
      * @since   0.3
      */
-    public function isCancelled() {
+    public function isCancelled()
+    {
         return $this->cancelled;
     }
 }

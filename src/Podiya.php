@@ -50,7 +50,8 @@ class Podiya
      * @return  bool    Return true if events may be held, otherwise false
      * @since   2.0
      */
-    public function willHoldUnheardEvents() {
+    public function willHoldUnheardEvents()
+    {
         return $this->holdUnheardEvents;
     }
     
@@ -62,7 +63,8 @@ class Podiya
      * @return  bool    Returns the new value we've set it to
      * @since   2.0
      */
-    public function holdUnheardEvents($hold = true) {
+    public function holdUnheardEvents($hold = true)
+    {
         if (!$hold) {
             $this->pending = [];
         }
@@ -365,7 +367,8 @@ class Podiya
 	 * @return  mixed   The return value of the called subscriber, if any
 	 * @since   2.0
 	 */
-	private function fire(Event &$event, array &$subscriber, $result = null) {
+	private function fire(Event &$event, array &$subscriber, $result = null)
+    {
 		// check if the subscriber is a timer
 		if (isset($subscriber['interval'])) {
 			if (self::currentTimeMillis() > $subscriber['nextcalltime']) {
