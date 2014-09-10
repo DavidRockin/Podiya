@@ -50,7 +50,8 @@ class Podiya
      * @return  bool    Return true if events may be held, otherwise false
      * @since   2.0
      */
-    public function willHoldUnheardEvents() {
+    public function willHoldUnheardEvents()
+    {
         return $this->holdUnheardEvents;
     }
     
@@ -62,7 +63,8 @@ class Podiya
      * @return  bool    Returns the new value we've set it to
      * @since   2.0
      */
-    public function holdUnheardEvents($hold = true) {
+    public function holdUnheardEvents($hold = true)
+    {
         if (!$hold) {
             $this->pending = [];
         }
@@ -75,7 +77,7 @@ class Podiya
      * @access  public
      * @param   string      $eventName  The published event's name
      * @param   callable    $callback   A callback that will handle the event
-     * @param   int         $priority   Priority of the event (0-5)
+     * @param   int         $priority   Priority of the handler  (0-5)
      * @param   bool        $force      Whether to ignore event cancellation
      * @return  mixed       False if $eventName isn't published, array of first two params otherwise
      * @since   2.0
@@ -102,15 +104,15 @@ class Podiya
             ];
         }
         
-        $event = [
+        $newsub = [
             'callback' => $callback,
             'force'    => (bool) $force,
         ];
         if ($interval) {
-            $event['interval'] = $interval; // milliseconds
-            $event['nextcalltime'] = self::currentTimeMillis() + $interval;
+            $newsub['interval'] = $interval; // milliseconds
+            $newsub['nextcalltime'] = self::currentTimeMillis() + $interval;
         }
-        $this->events[$eventName][$priority][] = $event;
+        $this->events[$eventName][$priority][] = $newsub;
         $this->events[$eventName]['subscribers']++;
         
         $result = null;
@@ -120,7 +122,7 @@ class Podiya
             // now re-publish any pending events for this subscriber
             $pcount = count($this->pending); // will be 0 if functionality is disabled
             for ($i = 0; $i < $pcount; $i++) {
-                if ($this->pending[$i]->getName() == $eventName) {
+                if ($this->pending[$i]->name == $eventName) {
                     $result[] = $this->publish(array_splice($this->pending, $i, 1), $priority);
                 }
             }
@@ -274,17 +276,15 @@ class Podiya
      */
     public function publish(Event $event, $priority = null)
     {
-        $eventName = $event->getName();
-        
-        if (!$this->hasSubscribers($eventName)) {
-            if ($this->holdUnheardEvents && $eventName != 'timer') {
+        if (!$this->hasSubscribers($event->name)) {
+            if ($this->holdUnheardEvents && $event->name != 'timer') {
                 array_unshift($this->pending, $event);
             }
             return;
         }
 		
         $result = null;
-		$events = $this->events[$eventName];
+		$events = $this->events[$event->name];
         
         if ($priority === null) {
             // Loop through all the priority levels
@@ -292,7 +292,7 @@ class Podiya
                 if (is_array($subscribers)) {
                     // Loop through the subscribers of this priority level
                     foreach ($subscribers as &$subscriber) {
-                        if (!$event->isCancelled() || $subscriber['force']) {
+                        if (!$event->cancelled || $subscriber['force']) {
 							$result = $this->fire($event, $subscriber, $result);
                         }
                     }
@@ -302,7 +302,7 @@ class Podiya
 			if (isset($events[$priority])) {
 				// Loop through the subscribers of the given priority
 				foreach ($events[$priority] as &$subscriber) {
-					if (!$event->isCancelled() || $subscriber['force']) {
+					if (!$event->cancelled || $subscriber['force']) {
 						$result = $this->fire($event, $subscriber, $result);
 					}
 				}
@@ -365,7 +365,8 @@ class Podiya
 	 * @return  mixed   The return value of the called subscriber, if any
 	 * @since   2.0
 	 */
-	private function fire(Event &$event, array &$subscriber, $result = null) {
+	private function fire(Event &$event, array &$subscriber, $result = null)
+	{
 		// check if the subscriber is a timer
 		if (isset($subscriber['interval'])) {
 			if (self::currentTimeMillis() > $subscriber['nextcalltime']) {
@@ -376,7 +377,7 @@ class Podiya
 		}
 		
 		// fire the event off to the subscriber
-		$event->addPreviousResult($result);
+		$event->previousResult = $result;
 		return call_user_func($subscriber['callback'], $event);
 	}
 }

@@ -76,116 +76,57 @@ class Event
      * @param   \DavidRockin\Podiya\Podiya  $podiya A reference back to a Podiya instance (optional)
      * @since   0.3
      */
-    public function __construct($name, $caller = null, $data = null, Podiya $podiya = null) {
-        $this->name	  = $name;
-        $this->caller = $caller;
-        $this->data   = $data;
-        $this->podiya = $podiya;
-    }
-        
-    /**
-     * Returns the event's name
-     *
-     * @access  public
-     * @return  string  Event name
-     * @since   2.0
-     */
-    public function getName() {
-        return $this->name;
+    public function __construct($name, $data = null, $caller = null, Podiya $podiya = null)
+    {
+        $this->name     = $name;
+        $this->data     = $data;
+        $this->caller   = $caller;
+        $this->podiya   = $podiya;
     }
     
     /**
-     * Returns the event's caller
-     *
-     * @access  public
-     * @return  string  Event name
-     * @since   2.0
-     */
-    public function getCaller() {
-        return $this->caller;
-    }
-    
-    /**
-     * Returns the event's data
+     * Getter method
+     * 
+     * Has special functionality for $this->previousResult
      * 
      * @access  public
-     * @return  mixed   The entire data array if no params, otherwise a specific key
+     * @param   string  $name   Name of the property to retrieve
+     * @return  mixed   The property's value
      * @since   2.0
      */
-    public function getData($key = null) {
-        if ($key === null) {
-            return $this->data;
+    public function __get($name)
+    {
+        switch ($name) {
+            case 'previousResult':
+                return $this->previousResults[count($this->previousResults)-1];
+            
+            default:
+                return $this->$name;
         }
-        if (isset($this->data[$key])) {
-            return $this->data[$key];
+    }
+    
+    /**
+     * Setter method
+     * 
+     * Only allows setting $this->previousResult and $this->cancelled
+     * 
+     * @access  public
+     * @param   string  $name   Name of the property to set
+     * @param   mixed   $val    Value to set it to
+     * @since   2.0
+     */
+    public function __set($name, $val)
+    {
+        switch ($name) {
+            case 'previousResult':
+                $this->previousResults[] = $val;
+                break;
+            
+            case 'cancelled':
+                $this->cancelled = (bool) $val;
+            
+            default:
+                break;
         }
-    }
-    
-    /**
-     * Returns our instance of the Podiya class
-     *
-     * @access  public
-     * @return  \DavidRockin\Podiya\Podiya  Podiya object reference
-     * @since   1.0
-     */
-    public function getPodiya() {
-        return $this->podiya;
-    }
-    
-    /**
-     * Gets an array of all previous event handlers' results
-     *
-     * @access  public
-     * @return  array   Array of previous event handlers results
-     * @since   1.0
-     */
-    public function getPreviousResults() {
-        return $this->previousResults;
-    }
-    
-    /**
-     * Gets the result of the previous event handler
-     *
-     * @access  public
-     * @return  mixed   Result of previous event handler
-     * @since   1.0
-     */
-    public function getPreviousResult() {
-        return $this->previousResults[count($this->previousResults)-1];
-    }
-    
-    /**
-     * Adds the previous event handler's result
-     *
-     * @access  public
-     * @param   mixed   $result The result of the previous event handler
-     * @since   1.0
-     */
-    public function addPreviousResult($result) {
-        $this->previousResults[] = $result;
-        return $result;
-    }
-    
-    /**
-     * Specifies if the event should be cancelled or not
-     *
-     * @access  public
-     * @param   bool    $cancelled  Cancel the event or not
-     * @return  bool    Returns the new value we've set it to
-     * @since   0.3
-     */
-    public function cancel($cancel = true) {
-        return ($this->cancelled = (bool) $cancel);
-    }
-    
-    /**
-     * Determine if the event is cancelled or not
-     *
-     * @access  public
-     * @return  bool    Return true if event cancelled, otherwise false
-     * @since   0.3
-     */
-    public function isCancelled() {
-        return $this->cancelled;
     }
 }
