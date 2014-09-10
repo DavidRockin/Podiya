@@ -35,6 +35,6 @@ class Fancify implements Listener
     public function fancyPost(Event $event) {
         return str_replace('border:1px solid #EEE;',
             'border:1px solid #DADADA;background:#F1F1F1;font-family:Arial;font-size:15px;',
-            $event->getPreviousResult());
+            $event->previousResult);
     }
 }

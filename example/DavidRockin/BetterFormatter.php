@@ -36,7 +36,7 @@ class BetterFormatter implements Listener
     }
     
     public function betterGroup(Event $event) {
-        $groupName = strtolower($event->getData());
+        $groupName = strtolower($event->data);
         switch ($groupName) {
             case 'admin':
             case 'administrator':
@@ -52,6 +52,6 @@ class BetterFormatter implements Listener
     }
     
     public function betterDate(Event $event) {
-        return date('F j, Y h:i:s A T', $event->getData());
+        return date('F j, Y h:i:s A T', $event->data);
     }
 }

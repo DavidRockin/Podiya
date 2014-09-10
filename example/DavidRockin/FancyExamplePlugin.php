@@ -31,7 +31,7 @@ class FancyExamplePlugin implements Listener
     }
     
     public function formatMessage(Event $event) {
-        $message = strip_tags($event->getData());
+        $message = strip_tags($event->data);
         $message = preg_replace('/\[b\](.+?)\[\/b\]/is', '<span style="font-weight:bold">$1</span>', $message);
         $message = preg_replace('/\[u\](.+?)\[\/u\]/is', '<span style="text-decoration:underline">$1</span>', $message);
         $message = preg_replace('/\[url=([^\[\]]+)\](.+?)\[\/url\]/is', '<a href="$1">$2</a>', $message);
