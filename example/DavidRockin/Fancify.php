@@ -25,11 +25,11 @@ class Fancify implements Listener
     public function __construct(Podiya $podiya) {
         $this->podiya = $podiya;
         $this->events = [['create_post', [$this, 'fancyPost']]];
-        $this->podiya->subscribe_array($this->events);
+        $this->podiya->subscribe($this->events);
     }
     
     public function destroy() {
-        $this->podiya->unsubscribe_array($this->events);
+        $this->podiya->unsubscribe($this->events);
     }
     
     public function fancyPost(Event $event) {

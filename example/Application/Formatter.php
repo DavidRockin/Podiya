@@ -32,12 +32,12 @@ class Formatter implements Listener
             ['format_message',  [$this, 'formatMessage']],
             ['create_post',     [$this, 'makePost']],
         ];
-        $this->podiya->subscribe_array($this->events);
+        $this->podiya->subscribe($this->events);
     }
     
     public function destroy()
     {
-        $this->podiya->unsubscribe_array($this->events);
+        $this->podiya->unsubscribe($this->events);
     }
     
     public function formatUsername(Event $event) {

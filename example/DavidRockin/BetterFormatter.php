@@ -28,11 +28,11 @@ class BetterFormatter implements Listener
             ['format_group', [$this, 'betterGroup']],
             ['format_date',  [$this, 'betterDate']],
         ];
-        $this->podiya->subscribe_array($this->events);
+        $this->podiya->subscribe($this->events);
     }
     
     public function destroy() {
-        $this->podiya->unsubscribe_array($this->events);
+        $this->podiya->unsubscribe($this->events);
     }
     
     public function betterGroup(Event $event) {
