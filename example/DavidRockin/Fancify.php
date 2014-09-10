@@ -17,19 +17,11 @@ use DavidRockin\Podiya\Podiya,
  * @subpackage  PodiyaExample
  * @version     2.0
  */
-class Fancify implements Listener
+class Fancify extends Listener
 {
-    private $podiya;
-    private $events;
-
     public function __construct(Podiya $podiya) {
-        $this->podiya = $podiya;
         $this->events = [['create_post', [$this, 'fancyPost']]];
-        $this->podiya->subscribe($this->events);
-    }
-    
-    public function destroy() {
-        $this->podiya->unsubscribe($this->events);
+        parent::__construct($podiya);
     }
     
     public function fancyPost(Event $event) {

@@ -16,14 +16,9 @@ use DavidRockin\Podiya\Podiya,
  * @subpackage  PodiyaExample
  * @version     2.0
  */
-class Formatter implements Listener
+class Formatter extends Listener
 {
-    private $podiya;
-    private $events;
-    
     public function __construct(Podiya $podiya) {
-        $this->podiya = $podiya;
-        
         // events we will handle
         $this->events = [
             ['format_username', [$this, 'formatUsername']],
@@ -32,12 +27,7 @@ class Formatter implements Listener
             ['format_message',  [$this, 'formatMessage']],
             ['create_post',     [$this, 'makePost']],
         ];
-        $this->podiya->subscribe($this->events);
-    }
-    
-    public function destroy()
-    {
-        $this->podiya->unsubscribe($this->events);
+        parent::__construct($podiya);
     }
     
     public function formatUsername(Event $event) {

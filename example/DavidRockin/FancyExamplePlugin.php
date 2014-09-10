@@ -17,17 +17,11 @@ use DavidRockin\Podiya\Podiya,
  * @subpackage  PodiyaExample
  * @version     2.0
  */
-class FancyExamplePlugin implements Listener
+class FancyExamplePlugin extends Listener
 {
-    private $podiya;
-
     public function __construct(Podiya $podiya) {
-        $this->podiya = $podiya;
-        $this->podiya->subscribe('format_message', [$this, 'formatMessage']);
-    }
-    
-    public function destroy() {
-        $this->podiya->unsubscribe('format_message', [$this, 'formatMessage']);
+        $this->events = [['format_message', [$this, 'formatMessage']]];
+        parent::__construct($podiya);
     }
     
     public function formatMessage(Event $event) {
