@@ -17,22 +17,14 @@ use DavidRockin\Podiya\Podiya,
  * @subpackage  PodiyaExample
  * @version     2.0
  */
-class BetterFormatter implements Listener
+class BetterFormatter extends Listener
 {
-    private $podiya;
-    private $events;
-
     public function __construct(Podiya $podiya) {
-        $this->podiya = $podiya;
         $this->events = [
             ['format_group', [$this, 'betterGroup']],
             ['format_date',  [$this, 'betterDate']],
         ];
-        $this->podiya->subscribe_array($this->events);
-    }
-    
-    public function destroy() {
-        $this->podiya->unsubscribe_array($this->events);
+        parent::__construct($podiya);
     }
     
     public function betterGroup(Event $event) {

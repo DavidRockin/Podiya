@@ -34,12 +34,13 @@ HTML;
 
 
 echo "With better formatting\n",
-    $podiya->publish(new Event('create_post', null, [
+    $podiya->publish(new Event('create_post', [
         'username' => 'David',
         'group'    => 'Administrator',
         'date'     => time(),
         'message'  => $sampleMessage,
-    ])), "\n", $podiya->publish(new Event('create_post', null, [
+    ])), "\n",
+    $podiya->publish(new Event('create_post', [
         'username' => 'John Doe',
         'group'    => 'Moderator',
         'date'     => strtotime('-3 days'),
@@ -50,12 +51,13 @@ $podiya->unsubscribe('format_group', [$betterFormatter, 'betterGroup']);
 $podiya->unsubscribe('create_post', [$fancify, 'fancyPost']);
 
 echo "\n\nWithout the better formatting on group and post\n",
-    $podiya->publish(new Event('create_post', null, [
+    $podiya->publish(new Event('create_post', [
         'username' => 'AppleJuice',
         'group'    => 'Member',
         'date'     => strtotime('-3 weeks'),
         'message'  => $sampleMessage,
-    ])), "\n", $podiya->publish(new Event('create_post', null, [
+    ])), "\n",
+    $podiya->publish(new Event('create_post', [
         'username' => 'Anonymous',
         'group'    => 'Donator',
         'date'     => strtotime('-3 years'),
@@ -65,7 +67,7 @@ echo "\n\nWithout the better formatting on group and post\n",
 $fancyExamplePlugin->destroy();
 
 echo "\n\nAfter destroying the fancyExamplePlugin listener\n",
-    $podiya->publish(new Event('create_post', null, [
+    $podiya->publish(new Event('create_post', [
         'username' => 'AppleJuice',
         'group'    => 'Member',
         'date'     => strtotime('-3 weeks'),

@@ -16,14 +16,9 @@ use DavidRockin\Podiya\Podiya,
  * @subpackage  PodiyaExample
  * @version     2.0
  */
-class Formatter implements Listener
+class Formatter extends Listener
 {
-    private $podiya;
-    private $events;
-    
     public function __construct(Podiya $podiya) {
-        $this->podiya = $podiya;
-        
         // events we will handle
         $this->events = [
             ['format_username', [$this, 'formatUsername']],
@@ -32,12 +27,7 @@ class Formatter implements Listener
             ['format_message',  [$this, 'formatMessage']],
             ['create_post',     [$this, 'makePost']],
         ];
-        $this->podiya->subscribe_array($this->events);
-    }
-    
-    public function destroy()
-    {
-        $this->podiya->unsubscribe_array($this->events);
+        parent::__construct($podiya);
     }
     
     public function formatUsername(Event $event) {
@@ -59,13 +49,13 @@ class Formatter implements Listener
     public function makePost(Event $event) {
         $result = '<div style="padding: 9px 16px;border:1px solid #EEE;margin-bottom:16px;">'
                  .'<strong>Posted by</strong> '
-                 .$this->podiya->publish(new Event('format_username', $this, $event->getData('username')))
+                 .$this->podiya->publish(new Event('format_username', $event->getData('username'), $this))
                  .' ('
-                 .$this->podiya->publish(new Event('format_group', $this, $event->getData('group')))
+                 .$this->podiya->publish(new Event('format_group', $event->getData('group'), $this))
                  .')<br /><strong>Posted Date</strong> '
-                 .$this->podiya->publish(new Event('format_date', $this, $event->getData('date')))
+                 .$this->podiya->publish(new Event('format_date', $event->getData('date'), $this))
                  .'<br />'
-                 .$this->podiya->publish(new Event('format_message', $this, $event->getData('message')))
+                 .$this->podiya->publish(new Event('format_message', $event->getData('message'), $this))
                  .'</div>';
         
         return $result;

@@ -76,42 +76,31 @@ class Event
      * @param   \DavidRockin\Podiya\Podiya  $podiya A reference back to a Podiya instance (optional)
      * @since   0.3
      */
-    public function __construct($name, $caller = null, $data = null, Podiya $podiya = null)
+    public function __construct($name, $data = null, $caller = null, Podiya $podiya = null)
     {
-        $this->name	  = $name;
-        $this->caller = $caller;
-        $this->data   = $data;
-        $this->podiya = $podiya;
+        $this->name     = $name;
+        $this->data     = $data;
+        $this->caller   = $caller;
+        $this->podiya   = $podiya;
     }
-        
-    /**
+    
+    /** 	
      * Returns the event's name
-     *
+     * 	
      * @access  public
      * @return  string  Event name
      * @since   2.0
      */
     public function getName()
-    {
-        return $this->name;
+    { 	
+        return $this->name; 	
     }
     
-    /**
-     * Returns the event's caller
-     *
-     * @access  public
-     * @return  string  Event name
-     * @since   2.0
-     */
-    public function getCaller()
-    {
-        return $this->caller;
-    }
-    
-    /**
+    /** 	
      * Returns the event's data
-     * 
+     * 	
      * @access  public
+     * @param   mixed   $key    An array key (optional)
      * @return  mixed   The entire data array if no params, otherwise a specific key
      * @since   2.0
      */
@@ -125,9 +114,21 @@ class Event
         }
     }
     
+    /** 	
+     * Returns the event's calling object or class name
+     * 	
+     * @access  public
+     * @return  mixed  Calling object or class name
+     * @since   2.0
+     */ 	
+    public function getCaller()
+    { 	
+        return $this->caller;
+    }
+    
     /**
-     * Returns our instance of the Podiya class
-     *
+     * Returns our Podiya instance
+     * 
      * @access  public
      * @return  \DavidRockin\Podiya\Podiya  Podiya object reference
      * @since   1.0
@@ -139,7 +140,7 @@ class Event
     
     /**
      * Gets an array of all previous event handlers' results
-     *
+     * 
      * @access  public
      * @return  array   Array of previous event handlers results
      * @since   1.0
@@ -151,48 +152,46 @@ class Event
     
     /**
      * Gets the result of the previous event handler
-     *
+     * 
      * @access  public
      * @return  mixed   Result of previous event handler
      * @since   1.0
      */
     public function getPreviousResult()
     {
-		$key = count($this->previousResults) - 1;
-        return $this->previousResults[$key];
+        return $this->previousResults[count($this->previousResults)-1];
     }
     
     /**
      * Adds the previous event handler's result
-     *
+     * 
      * @access  public
      * @param   mixed   $result The result of the previous event handler
      * @since   1.0
      */
-    public function addPreviousResult($result)
-    {
+    public function addPreviousResult($result) {
         $this->previousResults[] = $result;
         return $result;
     }
     
     /**
-     * Specifies if the event should be cancelled or not
-     *
+     * Determine whether further subscriber calls for this event will be stopped
+     * 
      * @access  public
-     * @param   bool    $cancelled  Cancel the event or not
+     * @param   bool    $cancel Cancel the event or not
      * @return  bool    Returns the new value we've set it to
      * @since   0.3
      */
-    public function cancel($cancel = true)
+    public function setCancelled($cancel = true)
     {
         return ($this->cancelled = (bool) $cancel);
     }
     
     /**
-     * Determine if the event is cancelled or not
-     *
+     * Return whether the event is cancelled
+     * 
      * @access  public
-     * @return  bool    Return true if event cancelled, otherwise false
+     * @return  bool    True if event is cancelled, otherwise false
      * @since   0.3
      */
     public function isCancelled()
