@@ -197,16 +197,15 @@ class Podiya
         if (($priority = $this->isSubscribed($eventName, $callback)) !== false) {
             
             // Loop through the subscribers for the matching priority level
-            foreach ($this->events[$eventName][$priority] as $subscribers) {
+            foreach ($this->events[$eventName][$priority] as $key => $subscriber) {
                 
-                // Figure out exactly where that callback is
-                $key = self::array_search_deep($callback, $this->events[$eventName][$priority]);
-                // We already know it's in there somewhere so we don't have to
-                // worry about $key being false
-                
-                // delete that subscriber and decrement the event name's counter
-                unset($this->events[$eventName][$priority][$key]);
-                $this->events[$eventName]['subscribers']--;
+                // if this subscriber matches what we're looking for
+                if (self::array_search_deep($callback, $subscriber) !== false) {
+                    
+                    // delete that subscriber and decrement the event name's counter
+                    unset($this->events[$eventName][$priority][$key]);
+                    $this->events[$eventName]['subscribers']--;
+                }
             }
             
             // If there are no more events, remove the event
