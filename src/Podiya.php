@@ -77,14 +77,29 @@ class Podiya
      * @access  public
      * @param   string      $eventName  The published event's name
      * @param   callable    $callback   A callback that will handle the event
-     * @param   int         $priority   Priority of the event (0-5)
+     * @param   int         $priority   Priority of the handler  (0-5)
      * @param   bool        $force      Whether to ignore event cancellation
      * @return  mixed       False if $eventName isn't published, array of first two params otherwise
      * @since   2.0
      */
-    public function subscribe($eventName, callable $callback, 
+    public function subscribe($eventName, callable $callback = null, 
                               $priority = self::PRIORITY_NORMAL, $force = false)
     {
+        if (is_array($eventName) && is_array($eventName[0])) {
+            $results = [];
+            foreach ($eventName as $newsub) {
+                $results[$newsub[0]] = $this->subscribe($newsub[0], $newsub[1],
+                    (isset($newsub[2]) ? $newsub[2] : $priority),
+                    (isset($newsub[3]) ? $newsub[3] : $force));
+            }
+            return $results;
+        }
+        
+        // otherwise, we're not processing an array, so $callback better not be null
+        if ($callback === null) {
+            return false;
+        }
+        
         $interval = false;
         if (strpos($eventName, 'timer:') === 0) {
             $interval = (int) substr($eventName, 6);
@@ -104,15 +119,15 @@ class Podiya
             ];
         }
         
-        $event = [
+        $newsub = [
             'callback' => $callback,
             'force'    => (bool) $force,
         ];
         if ($interval) {
-            $event['interval'] = $interval; // milliseconds
-            $event['nextcalltime'] = self::currentTimeMillis() + $interval;
+            $newsub['interval'] = $interval; // milliseconds
+            $newsub['nextcalltime'] = self::currentTimeMillis() + $interval;
         }
-        $this->events[$eventName][$priority][] = $event;
+        $this->events[$eventName][$priority][] = $newsub;
         $this->events[$eventName]['subscribers']++;
         
         $result = null;
@@ -132,25 +147,6 @@ class Podiya
     }
     
     /**
-     * Subscribes multiple handlers at once
-     * 
-     * @access  public
-     * @param   array   $arr    The list of handlers
-     * @return  array   Results from any pending events fired
-     * @since   2.0
-     */
-    public function subscribe_array(array $arr)
-    {
-        $results = [];
-        foreach ($arr as $info) {
-            $results[$info[0]] = $this->subscribe($info[0], $info[1],
-                (isset($info[2]) ? $info[2] : self::PRIORITY_NORMAL),
-                (isset($info[3]) ? $info[3] : false));
-        }
-        return $results;
-    }
-    
-    /**
      * Detach a handler from its event
      * 
      * @access  public
@@ -159,8 +155,15 @@ class Podiya
      * @return  \DavidRockin\Podiya\Podiya  This object
      * @since   2.0
      */
-    public function unsubscribe($eventName, callable $callback)
+    public function unsubscribe($eventName, callable $callback = null)
     {
+        if (is_array($eventName) && is_array($eventName[0])) {
+            foreach ($eventName as $subscriber) {
+                $this->unsubscribe($subscriber[0], $subscriber[1]);
+            }
+            return $this;
+        }
+        
         if (strpos($eventName, 'timer:') === 0) {
             $callback = [
 				'interval' => (int) substr($eventName, 6),
@@ -186,22 +189,6 @@ class Podiya
             }
         }
         
-        return $this;
-    }
-    
-    /**
-     * Unsubscribes multiple handlers at once
-     * 
-     * @access  public
-     * @param   array   $arr    The list of handlers
-     * @return  void
-     * @since   2.0
-     */
-    public function unsubscribe_array(array $arr)
-    {
-        foreach ($arr as $info) {
-            $this->unsubscribe($info[0], $info[1]);
-        }
         return $this;
     }
     
@@ -368,7 +355,7 @@ class Podiya
 	 * @since   2.0
 	 */
 	private function fire(Event &$event, array &$subscriber, $result = null)
-    {
+	{
 		// check if the subscriber is a timer
 		if (isset($subscriber['interval'])) {
 			if (self::currentTimeMillis() > $subscriber['nextcalltime']) {
