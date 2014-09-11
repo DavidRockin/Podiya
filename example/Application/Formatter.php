@@ -31,31 +31,31 @@ class Formatter extends Listener
     }
     
     public function formatUsername(Event $event) {
-        return $event->data;
+        return $event->getData();
     }
     
     public function formatGroup(Event $event) {
-        return $event->data;
+        return $event->getData();
     }
     
     public function formatMessage(Event $event) {
-        return nl2br($event->data);
+        return nl2br($event->getData());
     }
     
     public function formatDate(Event $event) {
-        return date('F j, Y h:i:s A', $event->data);
+        return date('F j, Y h:i:s A', $event->getData());
     }
     
     public function makePost(Event $event) {
         $result = '<div style="padding: 9px 16px;border:1px solid #EEE;margin-bottom:16px;">'
                  .'<strong>Posted by</strong> '
-                 .$this->podiya->publish(new Event('format_username', $event->data['username'], $this))
+                 .$this->podiya->publish(new Event('format_username', $event->getData('username'), $this))
                  .' ('
-                 .$this->podiya->publish(new Event('format_group', $event->data['group'], $this))
+                 .$this->podiya->publish(new Event('format_group', $event->getData('group'), $this))
                  .')<br /><strong>Posted Date</strong> '
-                 .$this->podiya->publish(new Event('format_date', $event->data['date'], $this))
+                 .$this->podiya->publish(new Event('format_date', $event->getData('date'), $this))
                  .'<br />'
-                 .$this->podiya->publish(new Event('format_message', $event->data['message'], $this))
+                 .$this->podiya->publish(new Event('format_message', $event->getData('message'), $this))
                  .'</div>';
         
         return $result;

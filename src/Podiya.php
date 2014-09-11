@@ -95,6 +95,11 @@ class Podiya
             return $results;
         }
         
+        // otherwise, we're not processing an array, so $callback better not be null
+        if ($callback === null) {
+            return false;
+        }
+        
         $interval = false;
         if (strpos($eventName, 'timer:') === 0) {
             $interval = (int) substr($eventName, 6);
@@ -132,7 +137,7 @@ class Podiya
             // now re-publish any pending events for this subscriber
             $pcount = count($this->pending); // will be 0 if functionality is disabled
             for ($i = 0; $i < $pcount; $i++) {
-                if ($this->pending[$i]->name == $eventName) {
+                if ($this->pending[$i]->getName() == $eventName) {
                     $result[] = $this->publish(array_splice($this->pending, $i, 1), $priority);
                 }
             }
@@ -258,15 +263,17 @@ class Podiya
      */
     public function publish(Event $event, $priority = null)
     {
-        if (!$this->hasSubscribers($event->name)) {
-            if ($this->holdUnheardEvents && $event->name != 'timer') {
+        $eventName = $event->getName();
+        
+        if (!$this->hasSubscribers($eventName)) {
+            if ($this->holdUnheardEvents && $eventName != 'timer') {
                 array_unshift($this->pending, $event);
             }
             return;
         }
 		
         $result = null;
-		$events = $this->events[$event->name];
+		$events = $this->events[$eventName];
         
         if ($priority === null) {
             // Loop through all the priority levels
@@ -274,7 +281,7 @@ class Podiya
                 if (is_array($subscribers)) {
                     // Loop through the subscribers of this priority level
                     foreach ($subscribers as &$subscriber) {
-                        if (!$event->cancelled || $subscriber['force']) {
+                        if (!$event->isCancelled() || $subscriber['force']) {
 							$result = $this->fire($event, $subscriber, $result);
                         }
                     }
@@ -284,7 +291,7 @@ class Podiya
 			if (isset($events[$priority])) {
 				// Loop through the subscribers of the given priority
 				foreach ($events[$priority] as &$subscriber) {
-					if (!$event->cancelled || $subscriber['force']) {
+					if (!$event->isCancelled() || $subscriber['force']) {
 						$result = $this->fire($event, $subscriber, $result);
 					}
 				}
@@ -359,7 +366,7 @@ class Podiya
 		}
 		
 		// fire the event off to the subscriber
-		$event->previousResult = $result;
+		$event->addPreviousResult($result);
 		return call_user_func($subscriber['callback'], $event);
 	}
 }

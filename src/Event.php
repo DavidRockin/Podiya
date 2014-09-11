@@ -84,49 +84,118 @@ class Event
         $this->podiya   = $podiya;
     }
     
-    /**
-     * Getter method
-     * 
-     * Has special functionality for $this->previousResult
-     * 
+    /** 	
+     * Returns the event's name
+     * 	
      * @access  public
-     * @param   string  $name   Name of the property to retrieve
-     * @return  mixed   The property's value
+     * @return  string  Event name
      * @since   2.0
      */
-    public function __get($name)
+    public function getName()
+    { 	
+        return $this->name; 	
+    }
+    
+    /** 	
+     * Returns the event's data
+     * 	
+     * @access  public
+     * @param   mixed   $key    An array key (optional)
+     * @return  mixed   The entire data array if no params, otherwise a specific key
+     * @since   2.0
+     */
+    public function getData($key = null)
     {
-        switch ($name) {
-            case 'previousResult':
-                return $this->previousResults[count($this->previousResults)-1];
-            
-            default:
-                return $this->$name;
+        if ($key === null) {
+            return $this->data;
+        }
+        if (isset($this->data[$key])) {
+            return $this->data[$key];
         }
     }
     
+    /** 	
+     * Returns the event's calling object or class name
+     * 	
+     * @access  public
+     * @return  mixed  Calling object or class name
+     * @since   2.0
+     */ 	
+    public function getCaller()
+    { 	
+        return $this->caller;
+    }
+    
     /**
-     * Setter method
-     * 
-     * Only allows setting $this->previousResult and $this->cancelled
+     * Returns our Podiya instance
      * 
      * @access  public
-     * @param   string  $name   Name of the property to set
-     * @param   mixed   $val    Value to set it to
-     * @since   2.0
+     * @return  \DavidRockin\Podiya\Podiya  Podiya object reference
+     * @since   1.0
      */
-    public function __set($name, $val)
+    public function getPodiya()
     {
-        switch ($name) {
-            case 'previousResult':
-                $this->previousResults[] = $val;
-                break;
-            
-            case 'cancelled':
-                $this->cancelled = (bool) $val;
-            
-            default:
-                break;
-        }
+        return $this->podiya;
+    }
+    
+    /**
+     * Gets an array of all previous event handlers' results
+     * 
+     * @access  public
+     * @return  array   Array of previous event handlers results
+     * @since   1.0
+     */
+    public function getPreviousResults()
+    {
+        return $this->previousResults;
+    }
+    
+    /**
+     * Gets the result of the previous event handler
+     * 
+     * @access  public
+     * @return  mixed   Result of previous event handler
+     * @since   1.0
+     */
+    public function getPreviousResult()
+    {
+        return $this->previousResults[count($this->previousResults)-1];
+    }
+    
+    /**
+     * Adds the previous event handler's result
+     * 
+     * @access  public
+     * @param   mixed   $result The result of the previous event handler
+     * @since   1.0
+     */
+    public function addPreviousResult($result) {
+        $this->previousResults[] = $result;
+        return $result;
+    }
+    
+    /**
+     * Determine whether further subscriber calls for this event will be stopped
+     * 
+     * @access  public
+     * @param   bool    $cancel Cancel the event or not
+     * @return  bool    Returns the new value we've set it to
+     * @since   0.3
+     */
+    public function setCancelled($cancel = true)
+    {
+        return ($this->cancelled = (bool) $cancel);
+    }
+    
+    /**
+     * Return whether the event is cancelled
+     * 
+     * @access  public
+     * @return  bool    True if event is cancelled, otherwise false
+     * @since   0.3
+     */
+    public function isCancelled()
+    {
+        return $this->cancelled;
     }
 }
