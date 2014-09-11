@@ -54,7 +54,7 @@ abstract class Listener
      *
      * @access  public
      * @return  void
-     * @since   0.2
+     * @since   2.0
      */
     public function destroy()
     {
