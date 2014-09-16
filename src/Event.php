@@ -106,12 +106,8 @@ class Event
      */
     public function getData($key = null)
     {
-        if ($key === null) {
-            return $this->data;
-        }
-        if (isset($this->data[$key])) {
-            return $this->data[$key];
-        }
+		return ($key === null ? $this->data : 
+					(isset($this->data[$key]) ? $this->data[$key] : null));
     }
     
     /** 	
