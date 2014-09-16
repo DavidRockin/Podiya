@@ -40,7 +40,7 @@ abstract class Listener
     protected function __construct(Podiya $podiya)
     {
         $this->podiya = $podiya;
-        $this->podiya->subscribe($this->events);
+        $this->podiya->subscribe_array($this->events);
     }
     
     /**
@@ -58,6 +58,6 @@ abstract class Listener
      */
     public function destroy()
     {
-        $this->podiya->unsubscribe($this->events);
+        $this->podiya->unsubscribe_array($this->events);
     }
 }
